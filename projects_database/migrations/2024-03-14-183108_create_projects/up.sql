@@ -1,0 +1,5 @@
+CREATE TABLE projects (
+    id VARCHAR(16) UNIQUE PRIMARY KEY,
+    user_id INT NOT NULL,
+    name VARCHAR(256) NOT NULL
+);
