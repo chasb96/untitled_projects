@@ -5,6 +5,7 @@ pub struct Snapshot {
     pub id: String,
     pub name: String,
     pub user_id: i32,
+    pub event_id: String,
     pub files: HashMap<String, String>,
 }
 
@@ -14,6 +15,7 @@ impl Snapshot {
             id: String::new(),
             name: String::new(),
             user_id: 0,
+            event_id: String::new(),
             files: HashMap::new(),
         }
     }

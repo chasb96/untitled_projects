@@ -11,8 +11,3 @@ pub struct ProjectResponse {
     pub name: String,
     pub user_id: i32,
 }
-
-#[derive(Serialize)]
-pub struct ListProjectsResponse {
-    pub projects: Vec<ProjectResponse>,
-}
