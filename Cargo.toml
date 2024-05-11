@@ -16,7 +16,6 @@ host = [
     "dep:futures", 
     "dep:serde", 
     "dep:serde_json",
-    "dep:prost",
     "dep:sqlx",
     "dep:chrono",
     "dep:deadpool",
