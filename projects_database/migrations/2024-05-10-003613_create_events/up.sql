@@ -1,5 +1,4 @@
 CREATE TABLE project_events (
-    id SERIAL NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    id VARCHAR(64) UNIQUE PRIMARY KEY,
     content JSON NOT NULL
 );
