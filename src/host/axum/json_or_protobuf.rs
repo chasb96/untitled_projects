@@ -42,9 +42,9 @@ impl<T> From<(T, HeaderMap)> for JsonOrProtobuf<T> {
             .and_then(|header_value| header_value.to_str().ok());
 
         if accept == Some(CONTENT_TYPE_PROTOBUF) {
-            Self::new(value.0, CONTENT_TYPE_PROTOBUF)
+            Self::Protobuf(value.0)
         } else {
-            Self::new(value.0, CONTENT_TYPE_JSON)
+            Self::Json(value.0)
         }
     }
 }

@@ -23,7 +23,7 @@ host = [
     "dep:rand",
     "dep:auth"
 ]
-client = []
+client = ["dep:reqwest"]
 
 [dependencies]
 tokio = { version = "1.36.0", features = ["full"], optional = true }
@@ -42,3 +42,4 @@ chrono = { version = "0.4.38", optional = true }
 deadpool = { version = "0.12.0", features = ["managed"], optional = true }
 rand = { version = "0.8.5", optional = true }
 auth = { git = "https://github.com/chasb96/untitled_auth", default-features = false, features = ["client"], optional = true }
+reqwest = { version = "0.12.4", optional = true }
