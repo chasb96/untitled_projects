@@ -1,7 +1,7 @@
-use axum::{extract::Path, http::StatusCode, Json};
+use axum::{extract::Path, http::{HeaderMap, StatusCode}, Json};
 use rand::distributions::{Alphanumeric, DistString};
 
-use crate::host::{axum::extractors::{authenticate::AuthenticateExtractor, events_repository::EventsRepositoryExtractor}, events::{CreateEvent, EventKind}, util::or_status_code::{OrInternalServerError, OrStatusCode}};
+use crate::host::{axum::{extractors::{authenticate::AuthenticateExtractor, events_repository::EventsRepositoryExtractor}, JsonOrProtobuf}, events::{CreateEvent, EventKind}, util::or_status_code::{OrInternalServerError, OrStatusCode}};
 use crate::host::repository::events::EventsRepository;
 
 use super::{request::CreateProjectRequest, response::{CreateProjectResponse, ProjectResponse}};
@@ -40,19 +40,20 @@ pub async fn create_project(
 
 pub async fn get_project_by_id(
     events_repository: EventsRepositoryExtractor,
+    headers: HeaderMap,
     Path(id): Path<String>
-) -> Result<Json<ProjectResponse>, StatusCode> {
+) -> Result<JsonOrProtobuf<ProjectResponse>, StatusCode> {
     let project = events_repository
         .get_by_id(&id)
         .await
         .or_internal_server_error()?
         .or_status_code(StatusCode::NOT_FOUND)?;
 
-    Ok(Json(
-        ProjectResponse {
-            id: project.id,
-            name: project.name,
-            user_id: project.user_id,
-        }
-    ))
+    let response_body = ProjectResponse {
+        id: project.id,
+        name: project.name,
+        user_id: project.user_id,
+    };
+
+    Ok(JsonOrProtobuf::from((response_body, headers)))
 }
