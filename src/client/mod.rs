@@ -23,7 +23,7 @@ impl ProjectsClient {
         }
     }
 
-    pub async fn get_project_by_id(&self, project_id: String) -> Result<ProjectResponse, Error> {
+    pub async fn get_project_by_id(&self, project_id: &str) -> Result<ProjectResponse, Error> {
         let response = self.http_client
             .post(format!("{}/projects/{}", self.base_url, project_id))
             .header(CONTENT_TYPE, "application/octet-stream")

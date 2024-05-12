@@ -1,14 +1,17 @@
+use auth::client::axum::extractors::Authenticate;
 use axum::{extract::Path, http::{HeaderMap, StatusCode}, Json};
 use rand::distributions::{Alphanumeric, DistString};
+use users::client::{axum::extractors::UsersClient, ProjectRequest};
 
-use crate::host::{axum::{extractors::{authenticate::AuthenticateExtractor, events_repository::EventsRepositoryExtractor}, JsonOrProtobuf}, events::{CreateEvent, EventKind}, util::or_status_code::{OrInternalServerError, OrStatusCode}};
+use crate::host::{axum::{extractors::events_repository::EventsRepositoryExtractor, JsonOrProtobuf}, events::{CreateEvent, EventKind}, util::or_status_code::{OrInternalServerError, OrStatusCode}};
 use crate::host::repository::events::EventsRepository;
 
 use super::{request::CreateProjectRequest, response::{CreateProjectResponse, ProjectResponse}};
 
 pub async fn create_project(
-    AuthenticateExtractor(user): AuthenticateExtractor,
+    Authenticate(user): Authenticate,
     events_repository: EventsRepositoryExtractor,
+    UsersClient(client): UsersClient,
     Json(request): Json<CreateProjectRequest>
 ) -> Result<(StatusCode, Json<CreateProjectResponse>), StatusCode> {
     let project_id = Alphanumeric.sample_string(&mut rand::thread_rng(), 16);
@@ -16,7 +19,7 @@ pub async fn create_project(
 
     let event = EventKind::Create(
         CreateEvent { 
-            id: project_id.clone(), 
+            id: project_id.to_owned(), 
             event_id,
             name: request.name, 
             owner_id: user.id 
@@ -25,6 +28,15 @@ pub async fn create_project(
     
     events_repository
         .create(&project_id, event)
+        .await
+        .or_internal_server_error()?;
+
+    let add_project_request = ProjectRequest {
+        project_id: project_id.to_owned(),
+    };
+
+    client
+        .add_project(user.id, add_project_request)
         .await
         .or_internal_server_error()?;
 
