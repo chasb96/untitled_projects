@@ -29,11 +29,13 @@ impl ProjectsClient {
             .header(CONTENT_TYPE, "application/octet-stream")
             .send()
             .await?
-            .error_for_status()?
-            .bytes()
-            .await?;
+            .error_for_status()?;
+        
+        let response_bytes = response.bytes().await?;
 
-        Ok(ProjectResponse::decode(response)?)
+        let response = ProjectResponse::decode(response_bytes)?;
+
+        Ok(response)
     }
 }
 
