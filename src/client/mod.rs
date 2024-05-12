@@ -1,5 +1,8 @@
 mod response;
 mod error;
+pub mod axum;
+
+use std::env;
 
 use prost::Message;
 pub use response::ProjectResponse;
@@ -9,18 +12,20 @@ use reqwest::{header::CONTENT_TYPE, Client};
 
 pub struct ProjectsClient {
     http_client: Client,
+    base_url: String,
 }
 
 impl ProjectsClient {
-    pub fn new(http_client: Client) -> Self {
+    pub fn new(http_client: Client, base_url: String) -> Self {
         Self {
-            http_client
+            http_client,
+            base_url,
         }
     }
 
     pub async fn get_project_by_id(&self, project_id: String) -> Result<ProjectResponse, Error> {
         let response = self.http_client
-            .post(format!("http://projects/projects/{}", project_id))
+            .post(format!("{}/projects/{}", self.base_url, project_id))
             .header(CONTENT_TYPE, "application/octet-stream")
             .send()
             .await?;
@@ -35,8 +40,14 @@ impl ProjectsClient {
 
 impl Default for ProjectsClient {
     fn default() -> Self {
+        let base_url = env::var("PROJECTS_BASE_URL")
+            .unwrap_or("http://projects".to_string())
+            .trim_end_matches('/')
+            .to_string();
+
         Self { 
-            http_client: Default::default() 
+            http_client: Default::default(),
+            base_url
         }
     }
 }

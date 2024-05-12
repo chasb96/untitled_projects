@@ -22,7 +22,7 @@ host = [
     "dep:rand",
     "dep:auth"
 ]
-client = ["dep:reqwest"]
+client = ["dep:reqwest", "dep:axum"]
 
 [dependencies]
 tokio = { version = "1.36.0", features = ["full"], optional = true }
