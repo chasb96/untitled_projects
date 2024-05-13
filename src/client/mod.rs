@@ -8,7 +8,7 @@ use prost::Message;
 pub use response::ProjectResponse;
 pub use error::Error;
 
-use reqwest::{header::{ACCEPT, CONTENT_TYPE}, Client, StatusCode};
+use reqwest::{header::{ACCEPT, CONTENT_TYPE}, Client};
 
 pub struct ProjectsClient {
     http_client: Client,
