@@ -8,7 +8,7 @@ use prost::Message;
 pub use response::ProjectResponse;
 pub use error::Error;
 
-use reqwest::{header::CONTENT_TYPE, Client, StatusCode};
+use reqwest::{header::{ACCEPT, CONTENT_TYPE}, Client, StatusCode};
 
 pub struct ProjectsClient {
     http_client: Client,
@@ -26,16 +26,15 @@ impl ProjectsClient {
     pub async fn get_project_by_id(&self, project_id: &str) -> Result<ProjectResponse, Error> {
         let response = self.http_client
             .get(format!("{}/projects/{}", self.base_url, project_id))
+            .header(ACCEPT, "application/octet-stream")
             .header(CONTENT_TYPE, "application/octet-stream")
             .send()
             .await?
-            .error_for_status()?;
-        
-        let response_bytes = response.bytes().await?;
+            .error_for_status()?
+            .bytes()
+            .await?;
 
-        let response = ProjectResponse::decode(response_bytes)?;
-
-        Ok(response)
+        Ok(ProjectResponse::decode(response)?)
     }
 }
 
