@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::{snapshot::Snapshot, Event};
+use super::{snapshot::Snapshot, Event, EventKind};
 
 #[derive(Serialize, Deserialize)]
 pub struct RemoveFileEvent {
@@ -8,12 +8,18 @@ pub struct RemoveFileEvent {
     pub path: String,
 }
 
-impl Event<Snapshot> for RemoveFileEvent {
+impl Event for RemoveFileEvent {
     fn apply(&self, entity: &mut Snapshot) {
         entity.files.remove(&self.path);
     }
 
     fn event_id(&self) -> &str {
         &self.event_id
+    }
+}
+
+impl Into<EventKind> for RemoveFileEvent {
+    fn into(self) -> EventKind {
+        EventKind::RemoveFile(self)
     }
 }

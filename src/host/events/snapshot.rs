@@ -1,6 +1,9 @@
 use std::collections::HashMap;
+use serde::{Deserialize, Serialize};
+
 use super::Event;
 
+#[derive(Serialize, Deserialize)]
 pub struct Snapshot {
     pub id: String,
     pub name: String,
@@ -20,11 +23,11 @@ impl Snapshot {
         }
     }
 
-    pub fn apply_event(&mut self, event: impl Event<Self>) {
+    pub fn apply_event(&mut self, event: impl Event) {
         event.apply(self)
     }
 
-    pub fn apply_events(&mut self, events: impl Iterator<Item = impl Event<Self>>) {
+    pub fn apply_events(&mut self, events: impl Iterator<Item = impl Event>) {
         for event in events {
             self.apply_event(event)
         }

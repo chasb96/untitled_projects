@@ -20,7 +20,10 @@ host = [
     "dep:deadpool",
     "dep:rand",
     "dep:auth",
-    "dep:users"
+    "dep:users",
+    "dep:json_or_protobuf",
+    "dep:or_status_code",
+    "dep:log_unwrap"
 ]
 client = ["dep:reqwest"]
 
@@ -43,3 +46,6 @@ rand = { version = "0.8.5", optional = true }
 reqwest = { version = "0.12.4", optional = true }
 auth = { git = "https://github.com/chasb96/untitled_auth", default-features = false, features = ["client"], optional = true }
 users = { git = "https://github.com/chasb96/untitled_users", default-features = false, features = ["client"], optional = true }
+json_or_protobuf = { git = "https://github.com/chasb96/json_or_protobuf", optional = true }
+or_status_code = { git = "https://github.com/chasb96/or_status_code", optional = true }
+log_unwrap = { git = "https://github.com/chasb96/log_unwrap", optional = true }

@@ -1,8 +1,7 @@
 use std::collections::HashMap;
-
 use serde::{Deserialize, Serialize};
 
-use super::{snapshot::Snapshot, Event};
+use super::{snapshot::Snapshot, Event, EventKind};
 
 #[derive(Serialize, Deserialize)]
 pub struct CreateEvent {
@@ -12,7 +11,7 @@ pub struct CreateEvent {
     pub owner_id: i32,
 }
 
-impl Event<Snapshot> for CreateEvent {
+impl Event for CreateEvent {
     fn apply(&self, entity: &mut Snapshot) {
         *entity = self.into()
     }
@@ -31,5 +30,11 @@ impl Into<Snapshot> for &CreateEvent {
             event_id: self.event_id.to_owned(),
             files: HashMap::new(),
         }
+    }
+}
+
+impl Into<EventKind> for CreateEvent {
+    fn into(self) -> EventKind {
+        EventKind::Create(self)
     }
 }

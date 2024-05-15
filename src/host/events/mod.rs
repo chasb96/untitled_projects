@@ -23,13 +23,13 @@ pub enum EventKind {
     RemoveFile(RemoveFileEvent),
 }
 
-pub trait Event<T> {
-    fn apply(&self, entity: &mut T);
+pub trait Event {
+    fn apply(&self, entity: &mut Snapshot);
 
     fn event_id(&self) -> &str;
 }
 
-impl Event<Snapshot> for EventKind {
+impl Event for EventKind {
     fn apply(&self, entity: &mut Snapshot) {
         match self {
             EventKind::Create(e) => e.apply(entity),

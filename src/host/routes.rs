@@ -1,6 +1,6 @@
 use axum::{routing::{get, post}, Router};
 
-use super::web::routes::{create_project, get_project_by_id};
+use super::web::{create_project, get_project_by_id};
 
 pub trait ProjectsRouter {
     fn register_projects_routes(self) -> Self;

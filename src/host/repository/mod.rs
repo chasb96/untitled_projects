@@ -1,4 +1,6 @@
 mod deadpool;
-mod postgres;
 mod error;
+
+pub mod postgres;
 pub mod events;
+pub mod snapshots;

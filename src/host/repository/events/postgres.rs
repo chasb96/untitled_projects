@@ -1,13 +1,13 @@
 use futures::TryStreamExt;
-use sqlx::types::Json;
+use sqlx::{postgres::PgRow, types::Json};
 use sqlx::Row;
 
-use crate::host::{events::{EventKind, Snapshot}, repository::postgres::PostgresDatabase};
+use crate::host::{events::EventKind, repository::{error::QueryError, postgres::PostgresDatabase}};
 
-use super::{error::QueryError, EventsRepository};
+use super::EventsRepository;
 
 impl EventsRepository for PostgresDatabase {
-    async fn create(&self, project_id: &str, event: EventKind) -> Result<(), QueryError> {
+    async fn create(&self, project_id: &str, event: impl Into<EventKind>) -> Result<(), QueryError> {
         const CREATE_QUERY: &'static str = r#"
             INSERT INTO project_events (project_id, content)
             VALUES ($1, $2)
@@ -19,7 +19,7 @@ impl EventsRepository for PostgresDatabase {
 
         sqlx::query(CREATE_QUERY)
             .bind(project_id)
-            .bind(Json::from(event))
+            .bind(Json::from(event.into()))
             .execute(conn.as_mut())
             .await
             .map_err(QueryError::from)?;
@@ -27,37 +27,62 @@ impl EventsRepository for PostgresDatabase {
         Ok(())
     }
 
-    async fn get_by_id(&self, project_id: &str) -> Result<Option<Snapshot>, QueryError> {
+    async fn list(&self, project_id: &str) -> Result<Vec<EventKind>, QueryError> {
         const LIST_QUERY: &'static str = r#"
-            SELECT
-                content
-            FROM
-                project_events
-            WHERE
-                project_id = $1
-            ORDER BY
-                id ASC
+            SELECT content
+            FROM project_events
+            WHERE project_id = $1
+            ORDER BY id ASC
         "#;
 
         let mut conn = self.connection_pool
             .get()
-            .await?;
+            .await.unwrap();
 
-        let mut records = sqlx::query(LIST_QUERY)
+        let mut event_stream = sqlx::query(LIST_QUERY)
             .bind(project_id)
+            .map(|row: PgRow| row.get("content"))
+            .map(|content: Json<EventKind>| content.0)
             .fetch(conn.as_mut());
 
-        let mut records_found = false;
-        let mut snapshot = Snapshot::new();
+        let mut events = Vec::new();
 
-        while let Some(item) = records.try_next().await? {
-            records_found = true;
-
-            let content: Json<EventKind> = item.get("content");
-
-            snapshot.apply_event(content.0);
+        while let Some(event) = event_stream.try_next().await? {
+            events.push(event);
         }
 
-        Ok(if records_found { Some(snapshot) } else { None })
+        Ok(events)
+    }
+
+    async fn list_until(&self, project_id: &str, event_id: &str) -> Result<Vec<EventKind>, QueryError> {
+        const LIST_QUERY: &'static str = r#"
+            SELECT content
+            FROM project_events
+            WHERE project_id = $1 AND id <= (
+                SELECT id
+                FROM project_events
+                WHERE project_id = $1 AND event_id = $2
+            )
+            ORDER BY id ASC
+        "#;
+
+        let mut conn = self.connection_pool
+            .get()
+            .await.unwrap();
+
+        let mut event_stream = sqlx::query(LIST_QUERY)
+            .bind(project_id)
+            .bind(event_id)
+            .map(|row: PgRow| row.get("content"))
+            .map(|content: Json<EventKind>| content.0)
+            .fetch(conn.as_mut());
+
+        let mut events = Vec::new();
+
+        while let Some(event) = event_stream.try_next().await? {
+            events.push(event);
+        }
+
+        Ok(events)
     }
 }

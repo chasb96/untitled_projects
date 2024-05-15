@@ -2,7 +2,6 @@ use axum::layers::LogLayer;
 use ::axum::{routing::get, Router};
 use routes::ProjectsRouter;
 
-mod util;
 mod axum;
 mod repository;
 mod web;

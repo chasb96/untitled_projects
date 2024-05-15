@@ -1,16 +1,15 @@
-mod error;
 mod postgres;
 
-use crate::host::events::{EventKind, Snapshot};
+use crate::host::events::EventKind;
 
-use self::error::QueryError;
-
-use super::postgres::PostgresDatabase;
+use super::{error::QueryError, postgres::PostgresDatabase};
 
 pub trait EventsRepository {
-    async fn create(&self, project_id: &str, event: EventKind) -> Result<(), QueryError>;
+    async fn create(&self, project_id: &str, event: impl Into<EventKind>) -> Result<(), QueryError>;
 
-    async fn get_by_id(&self, project_id: &str) -> Result<Option<Snapshot>, QueryError>;
+    async fn list(&self, project_id: &str) -> Result<Vec<EventKind>, QueryError>;
+
+    async fn list_until(&self, project_id: &str, event_id: &str) -> Result<Vec<EventKind>, QueryError>;
 }
 
 pub enum EventsRepositoryOption {
@@ -18,15 +17,21 @@ pub enum EventsRepositoryOption {
 }
 
 impl EventsRepository for EventsRepositoryOption {
-    async fn create(&self, project_id: &str, event: EventKind) -> Result<(), QueryError> {
+    async fn create(&self, project_id: &str, event: impl Into<EventKind>) -> Result<(), QueryError> {
         match self {
             EventsRepositoryOption::Postgres(pg) => pg.create(project_id, event).await,
         }
     }
-
-    async fn get_by_id(&self, project_id: &str) -> Result<Option<Snapshot>, QueryError> {
+    
+    async fn list(&self, project_id: &str) -> Result<Vec<EventKind>, QueryError> {
         match self {
-            EventsRepositoryOption::Postgres(pg) => pg.get_by_id(project_id).await,
+            EventsRepositoryOption::Postgres(pg) => pg.list(project_id).await,
+        }
+    }
+
+    async fn list_until(&self, project_id: &str, event_id: &str) -> Result<Vec<EventKind>, QueryError> {
+        match self {
+            EventsRepositoryOption::Postgres(pg) => pg.list_until(project_id, event_id).await,
         }
     }
 }
