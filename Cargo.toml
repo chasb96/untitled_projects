@@ -23,7 +23,8 @@ host = [
     "dep:users",
     "dep:json_or_protobuf",
     "dep:or_status_code",
-    "dep:log_unwrap"
+    "dep:log_unwrap",
+    "dep:log_layer"
 ]
 client = ["dep:reqwest"]
 
@@ -49,3 +50,4 @@ users = { git = "https://github.com/chasb96/untitled_users", default-features = 
 json_or_protobuf = { git = "https://github.com/chasb96/json_or_protobuf", optional = true }
 or_status_code = { git = "https://github.com/chasb96/or_status_code", optional = true }
 log_unwrap = { git = "https://github.com/chasb96/log_unwrap", optional = true }
+log_layer = { git = "https://github.com/chasb96/log_layer", optional = true }
