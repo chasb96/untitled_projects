@@ -1,6 +1,4 @@
 use auth::client::axum::extractors::Authenticate;
-use axum::body::Body;
-use axum::http::Response;
 use axum::response::IntoResponse;
 use axum::{http::StatusCode, Json};
 use or_status_code::OrInternalServerError;
@@ -23,18 +21,12 @@ pub struct CreateProjectResponse {
     pub id: String,
 }
 
-impl IntoResponse for CreateProjectResponse {
-    fn into_response(self) -> Response<Body> {
-        (StatusCode::CREATED, Json(self)).into_response()
-    }
-}
-
 pub async fn create_project(
     Authenticate(user): Authenticate,
     events_repository: EventsRepositoryExtractor,
     UsersClient(client): UsersClient,
     Json(request): Json<CreateProjectRequest>
-) -> ApiResult<Json<CreateProjectResponse>> {
+) -> ApiResult<impl IntoResponse> {
     let project_id = Alphanumeric.sample_string(&mut rand::thread_rng(), 16);
 
     let event = CreateEvent { 
@@ -58,9 +50,12 @@ pub async fn create_project(
         .await
         .or_internal_server_error()?;
 
-    Ok(Json(
-        CreateProjectResponse {
+    let response = (
+        StatusCode::CREATED,
+        Json(CreateProjectResponse {
             id: project_id,
-        }
-    ))
+        }),
+    );
+
+    Ok(response)
 }

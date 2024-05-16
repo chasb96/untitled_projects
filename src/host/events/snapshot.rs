@@ -33,3 +33,17 @@ impl Snapshot {
         }
     }
 }
+
+impl<T, S> From<T> for Snapshot 
+where
+    T: Iterator<Item = S>,
+    S: Event
+{
+    fn from(events: T) -> Self {
+        let mut snapshot = Snapshot::new();
+
+        snapshot.apply_events(events);
+        
+        snapshot
+    }
+}
