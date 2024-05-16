@@ -2,24 +2,27 @@ use futures::TryStreamExt;
 use sqlx::{postgres::PgRow, types::Json};
 use sqlx::Row;
 
-use crate::host::{events::EventKind, repository::{error::QueryError, postgres::PostgresDatabase}};
+use crate::host::{events::{ Event, EventKind }, repository::{error::QueryError, postgres::PostgresDatabase}};
 
 use super::EventsRepository;
 
 impl EventsRepository for PostgresDatabase {
     async fn create(&self, project_id: &str, event: impl Into<EventKind>) -> Result<(), QueryError> {
         const CREATE_QUERY: &'static str = r#"
-            INSERT INTO project_events (project_id, content)
-            VALUES ($1, $2)
+            INSERT INTO project_events (project_id, event_id, content)
+            VALUES ($1, $2, $3)
         "#;
 
         let mut conn = self.connection_pool
             .get()
             .await?;
 
+        let event = event.into();
+
         sqlx::query(CREATE_QUERY)
             .bind(project_id)
-            .bind(Json::from(event.into()))
+            .bind(&event.event_id())
+            .bind(Json::from(&event))
             .execute(conn.as_mut())
             .await
             .map_err(QueryError::from)?;

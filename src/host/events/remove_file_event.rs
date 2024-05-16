@@ -9,8 +9,9 @@ pub struct RemoveFileEvent {
 }
 
 impl Event for RemoveFileEvent {
-    fn apply(&self, entity: &mut Snapshot) {
+    fn apply(self, entity: &mut Snapshot) {
         entity.files.remove(&self.path);
+        entity.event_id = self.event_id;
     }
 
     fn event_id(&self) -> &str {

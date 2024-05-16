@@ -9,8 +9,9 @@ pub struct NameEvent {
 }
 
 impl Event for NameEvent {
-    fn apply(&self, entity: &mut Snapshot) {
-        entity.name = self.name.to_owned()
+    fn apply(self, entity: &mut Snapshot) {
+        entity.name = self.name.to_owned();
+        entity.event_id = self.event_id;
     }
 
     fn event_id(&self) -> &str {

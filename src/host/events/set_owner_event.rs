@@ -9,8 +9,9 @@ pub struct SetOwnerEvent {
 }
 
 impl Event for SetOwnerEvent {
-    fn apply(&self, entity: &mut Snapshot) {
-        entity.user_id = self.owner_id
+    fn apply(self, entity: &mut Snapshot) {
+        entity.user_id = self.owner_id;
+        entity.event_id = self.event_id;
     }
 
     fn event_id(&self) -> &str {

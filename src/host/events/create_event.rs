@@ -12,8 +12,8 @@ pub struct CreateEvent {
 }
 
 impl Event for CreateEvent {
-    fn apply(&self, entity: &mut Snapshot) {
-        *entity = self.into()
+    fn apply(self, entity: &mut Snapshot) {
+        *entity = self.into();
     }
     
     fn event_id(&self) -> &str {
@@ -21,7 +21,7 @@ impl Event for CreateEvent {
     }
 }
 
-impl Into<Snapshot> for &CreateEvent {
+impl Into<Snapshot> for CreateEvent {
     fn into(self) -> Snapshot {
         Snapshot {
             id: self.id.to_owned(),

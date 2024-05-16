@@ -10,8 +10,9 @@ pub struct AddFileEvent {
 }
 
 impl Event for AddFileEvent {
-    fn apply(&self, entity: &mut Snapshot) {
+    fn apply(self, entity: &mut Snapshot) {
         entity.files.insert(self.path.to_owned(), self.file_id.to_owned());
+        entity.event_id = self.event_id;
     }
     
     fn event_id(&self) -> &str {

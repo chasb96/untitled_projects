@@ -24,13 +24,13 @@ pub enum EventKind {
 }
 
 pub trait Event {
-    fn apply(&self, entity: &mut Snapshot);
+    fn apply(self, entity: &mut Snapshot);
 
     fn event_id(&self) -> &str;
 }
 
 impl Event for EventKind {
-    fn apply(&self, entity: &mut Snapshot) {
+    fn apply(self, entity: &mut Snapshot) {
         match self {
             EventKind::Create(e) => e.apply(entity),
             EventKind::Name(e) => e.apply(entity),
