@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use super::{snapshot::Snapshot, Event, EventKind};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct CreateEvent {
     pub event_id: String,
     pub id: String,
@@ -24,10 +24,10 @@ impl Event for CreateEvent {
 impl Into<Snapshot> for CreateEvent {
     fn into(self) -> Snapshot {
         Snapshot {
-            id: self.id.to_owned(),
-            name: self.name.to_owned(),
+            id: self.id,
+            name: self.name,
             user_id: self.owner_id,
-            event_id: self.event_id.to_owned(),
+            event_id: self.event_id,
             files: HashMap::new(),
         }
     }

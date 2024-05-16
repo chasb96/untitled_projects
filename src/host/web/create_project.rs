@@ -6,8 +6,10 @@ use rand::distributions::{Alphanumeric, DistString};
 use serde::{Deserialize, Serialize};
 use users::client::{axum::extractors::UsersClient, ProjectRequest};
 
+use crate::host::axum::extractors::snapshots_repository::SnapshotsRepositoryExtractor;
 use crate::host::{axum::extractors::events_repository::EventsRepositoryExtractor, events::CreateEvent};
 use crate::host::repository::events::EventsRepository;
+use crate::host::repository::snapshots::SnapshotsRepository;
 
 use super::ApiResult;
 
@@ -24,6 +26,7 @@ pub struct CreateProjectResponse {
 pub async fn create_project(
     Authenticate(user): Authenticate,
     events_repository: EventsRepositoryExtractor,
+    snapshots_repository: SnapshotsRepositoryExtractor,
     UsersClient(client): UsersClient,
     Json(request): Json<CreateProjectRequest>
 ) -> ApiResult<impl IntoResponse> {
@@ -37,7 +40,12 @@ pub async fn create_project(
     };
 
     events_repository
-        .create(&project_id, event)
+        .create(&project_id, event.clone())
+        .await
+        .or_internal_server_error()?;
+
+    snapshots_repository
+        .create(&project_id, "latest", event)
         .await
         .or_internal_server_error()?;
 

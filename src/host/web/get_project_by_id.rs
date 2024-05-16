@@ -1,4 +1,6 @@
-use axum::{extract::{Path, Query}, http::{HeaderMap, StatusCode}};
+use std::collections::HashMap;
+
+use axum::{extract::{Path, Query}, http::{HeaderMap, StatusCode}, response::IntoResponse};
 use json_or_protobuf::JsonOrProtobuf;
 use or_status_code::{OrInternalServerError, OrStatusCode};
 use serde::Deserialize;
@@ -19,6 +21,8 @@ pub struct ProjectResponse {
     pub name: String,
     #[prost(int32, tag = "3")]
     pub user_id: i32,
+    #[prost(map= "string, string", tag = "4")]
+    pub files: HashMap<String, String>,
 }
 
 #[derive(Deserialize)]
@@ -31,7 +35,7 @@ pub async fn get_project_by_id(
     headers: HeaderMap,
     Path(id): Path<String>,
     query: Query<GetProjectByIdQuery>
-) -> ApiResult<JsonOrProtobuf<ProjectResponse>> {
+) -> ApiResult<impl IntoResponse> {
     let version = match &query.version {
         Some(version) => version,
         None => "latest"
@@ -47,6 +51,7 @@ pub async fn get_project_by_id(
         id: project.id,
         name: project.name,
         user_id: project.user_id,
+        files: project.files,
     };
 
     Ok(JsonOrProtobuf::from_accept_header(response_body, &headers))
