@@ -3,14 +3,15 @@ use serde::{Deserialize, Serialize};
 mod snapshot;
 mod name_event;
 mod set_owner_event;
-mod remove_file_event;
-mod add_file_event;
+mod remove_files_event;
+mod add_files_event;
 mod create_event;
 
 pub use name_event::NameEvent;
 pub use set_owner_event::SetOwnerEvent;
-pub use remove_file_event::RemoveFileEvent;
-pub use add_file_event::AddFileEvent;
+pub use remove_files_event::RemoveFilesEvent;
+pub use add_files_event::AddFilesEvent;
+pub use add_files_event::FileMap;
 pub use create_event::CreateEvent;
 pub use snapshot::Snapshot;
 
@@ -19,8 +20,8 @@ pub enum EventKind {
     Create(CreateEvent),
     Name(NameEvent),
     SetOwner(SetOwnerEvent),
-    AddFile(AddFileEvent),
-    RemoveFile(RemoveFileEvent),
+    AddFile(AddFilesEvent),
+    RemoveFile(RemoveFilesEvent),
 }
 
 pub trait Event {

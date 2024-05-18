@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use axum::{extract::{Path, Query}, http::{HeaderMap, StatusCode}, response::IntoResponse};
 use json_or_protobuf::JsonOrProtobuf;
 use or_status_code::{OrInternalServerError, OrStatusCode};
@@ -21,8 +19,16 @@ pub struct ProjectResponse {
     pub name: String,
     #[prost(int32, tag = "3")]
     pub user_id: i32,
-    #[prost(map= "string, string", tag = "4")]
-    pub files: HashMap<String, String>,
+    #[prost(message, repeated, tag = "4")]
+    pub files: Vec<ProjectFileReponse>,
+}
+
+#[derive(Serialize, Message)]
+pub struct ProjectFileReponse {
+    #[prost(string, tag = "1")]
+    pub id: String,
+    #[prost(string, tag = "2")]
+    pub name: String,
 }
 
 #[derive(Deserialize)]
@@ -51,7 +57,13 @@ pub async fn get_project_by_id(
         id: project.id,
         name: project.name,
         user_id: project.user_id,
-        files: project.files,
+        files: project.files
+            .into_iter()
+            .map(|file| ProjectFileReponse {
+                id: file.1,
+                name: file.0,
+            })
+            .collect(),
     };
 
     Ok(JsonOrProtobuf::from_accept_header(response_body, &headers))

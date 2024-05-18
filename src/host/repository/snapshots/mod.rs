@@ -8,6 +8,8 @@ pub trait SnapshotsRepository {
     async fn create(&self, project_id: &str, version: &str, snapshot: impl Into<Snapshot>) -> Result<(), QueryError>;
 
     async fn get_by_id(&self, project_id: &str, version: &str) -> Result<Option<Snapshot>, QueryError>;
+
+    async fn delete(&self, project_id: &str, version: &str) -> Result<(), QueryError>;
 }
 
 pub enum SnapshotsRepositoryOption {
@@ -24,6 +26,12 @@ impl SnapshotsRepository for SnapshotsRepositoryOption {
     async fn get_by_id(&self, project_id: &str, version: &str) -> Result<Option<Snapshot>, QueryError> {
         match self {
             SnapshotsRepositoryOption::Postgres(pg) => pg.get_by_id(project_id, version).await,
+        }
+    }
+
+    async fn delete(&self, project_id: &str, version: &str) -> Result<(), QueryError> {
+        match self {
+            SnapshotsRepositoryOption::Postgres(pg) => pg.delete(project_id, version).await,
         }
     }
 }
