@@ -2,15 +2,18 @@ use serde::{Deserialize, Serialize};
 
 use super::{snapshot::Snapshot, Event, EventKind};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct RemoveFilesEvent {
     pub event_id: String,
-    pub path: String,
+    pub paths: Vec<String>,
 }
 
 impl Event for RemoveFilesEvent {
     fn apply(self, entity: &mut Snapshot) {
-        entity.files.remove(&self.path);
+        for path in self.paths {
+            entity.files.remove(&path);
+        }
+        
         entity.event_id = self.event_id;
     }
 
