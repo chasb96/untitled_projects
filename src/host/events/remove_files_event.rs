@@ -4,7 +4,9 @@ use super::{snapshot::Snapshot, Event, EventKind};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct RemoveFilesEvent {
+    #[serde(rename = "eid")]
     pub event_id: String,
+    #[serde(rename = "p")]
     pub paths: Vec<String>,
 }
 

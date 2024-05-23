@@ -4,7 +4,9 @@ use super::{snapshot::Snapshot, Event, EventKind};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct NameEvent {
+    #[serde(rename = "eid")]
     pub event_id: String,
+    #[serde(rename = "n")]
     pub name: String,
 }
 

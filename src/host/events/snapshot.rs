@@ -5,10 +5,15 @@ use super::Event;
 
 #[derive(Serialize, Deserialize)]
 pub struct Snapshot {
+    #[serde(rename = "id")]
     pub id: String,
+    #[serde(rename = "n")]
     pub name: String,
+    #[serde(rename = "uid")]
     pub user_id: i32,
+    #[serde(rename = "eid")]
     pub event_id: String,
+    #[serde(rename = "f")]
     pub files: HashMap<String, String>,
 }
 

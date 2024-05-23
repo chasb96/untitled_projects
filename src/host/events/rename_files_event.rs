@@ -6,7 +6,9 @@ use super::{Event, EventKind, Snapshot};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct RenameFilesEvent {
+    #[serde(rename = "eid")]
     pub event_id: String,
+    #[serde(rename = "p")]
     pub paths: HashMap<String, String>,
 }
 

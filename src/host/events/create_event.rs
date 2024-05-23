@@ -5,9 +5,13 @@ use super::{snapshot::Snapshot, Event, EventKind};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct CreateEvent {
+    #[serde(rename = "eid")]
     pub event_id: String,
+    #[serde(rename = "id")]
     pub id: String,
+    #[serde(rename = "n")]
     pub name: String,
+    #[serde(rename = "uid")]
     pub owner_id: i32,
 }
 

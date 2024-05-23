@@ -19,11 +19,17 @@ pub use rename_files_event::RenameFilesEvent;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub enum EventKind {
+    #[serde(rename = "c")]
     Create(CreateEvent),
+    #[serde(rename = "n")]
     Name(NameEvent),
+    #[serde(rename = "so")]
     SetOwner(SetOwnerEvent),
+    #[serde(rename = "af")]
     AddFiles(AddFilesEvent),
+    #[serde(rename = "rm")]
     RemoveFiles(RemoveFilesEvent),
+    #[serde(rename = "mv")]
     RenameFiles(RenameFilesEvent),
 }
 
