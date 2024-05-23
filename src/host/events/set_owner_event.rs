@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use super::{snapshot::Snapshot, Event, EventKind};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct SetOwnerEvent {
     pub event_id: String,
     pub owner_id: i32,

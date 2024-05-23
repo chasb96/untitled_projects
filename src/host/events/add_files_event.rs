@@ -30,6 +30,6 @@ impl Event for AddFilesEvent {
 
 impl Into<EventKind> for AddFilesEvent {
     fn into(self) -> EventKind {
-        EventKind::AddFile(self)
+        EventKind::AddFiles(self)
     }
 }

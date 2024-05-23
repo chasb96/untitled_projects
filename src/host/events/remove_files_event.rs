@@ -24,6 +24,6 @@ impl Event for RemoveFilesEvent {
 
 impl Into<EventKind> for RemoveFilesEvent {
     fn into(self) -> EventKind {
-        EventKind::RemoveFile(self)
+        EventKind::RemoveFiles(self)
     }
 }
