@@ -12,8 +12,11 @@ use crate::host::events::EventKind;
 
 #[derive(Deserialize)]
 pub enum EventRequest {
+    #[serde(rename = "af")]
     AddFiles(AddFilesRequest),
+    #[serde(rename = "rm")]
     RemoveFiles(RemoveFilesRequest),
+    #[serde(rename = "mv")]
     RenameFiles(RenameFilesRequest),
 }
 

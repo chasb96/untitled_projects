@@ -5,12 +5,15 @@ use crate::host::events::{AddFilesEvent, FileMap};
 
 #[derive(Deserialize)]
 pub struct AddFilesRequest {
+    #[serde(rename = "f")]
     pub files: Vec<AddFileRequest>,
 }
 
 #[derive(Deserialize)]
 pub struct AddFileRequest {
+    #[serde(rename = "p")]
     pub path: String,
+    #[serde(rename = "fid")]
     pub file_id: String,
 }
 

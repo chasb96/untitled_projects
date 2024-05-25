@@ -13,20 +13,26 @@ use serde::Serialize;
 
 #[derive(Serialize, Message)]
 pub struct ProjectResponse {
+    #[serde(rename = "id")]
     #[prost(string, tag = "1")]
     pub id: String,
+    #[serde(rename = "n")]
     #[prost(string, tag = "2")]
     pub name: String,
+    #[serde(rename = "uid")]
     #[prost(int32, tag = "3")]
     pub user_id: i32,
+    #[serde(rename = "f")]
     #[prost(message, repeated, tag = "4")]
     pub files: Vec<ProjectFileReponse>,
 }
 
 #[derive(Serialize, Message)]
 pub struct ProjectFileReponse {
+    #[serde(rename = "id")]
     #[prost(string, tag = "1")]
     pub id: String,
+    #[serde(rename = "n")]
     #[prost(string, tag = "2")]
     pub name: String,
 }

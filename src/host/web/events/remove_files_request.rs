@@ -5,6 +5,7 @@ use crate::host::events::RemoveFilesEvent;
 
 #[derive(Deserialize)]
 pub struct RemoveFilesRequest {
+    #[serde(rename = "p")]
     pub paths: Vec<String>,
 }
 
