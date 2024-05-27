@@ -1,4 +1,4 @@
-use auth::client::axum::extractors::Authenticate;
+use auth::client::axum::extractors::{Authenticate, ClaimsUser};
 use axum::{extract::Path, response::IntoResponse, Json};
 use or_status_code::{OrInternalServerError, OrNotFound};
 use axum::http::StatusCode;
@@ -10,7 +10,7 @@ use crate::host::repository::events::EventsRepository;
 use super::{events::EventRequest, ApiResult};
 
 pub async fn event(
-    Authenticate(user): Authenticate,
+    Authenticate(user): Authenticate<ClaimsUser>,
     snapshots_repository: SnapshotsRepositoryExtractor,
     events_repository: EventsRepositoryExtractor,
     Path(project_id): Path<String>,

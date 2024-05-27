@@ -1,4 +1,4 @@
-use auth::client::axum::extractors::Authenticate;
+use auth::client::axum::extractors::{Authenticate, ClaimsUser};
 use axum::response::IntoResponse;
 use axum::{http::StatusCode, Json};
 use or_status_code::OrInternalServerError;
@@ -24,7 +24,7 @@ pub struct CreateProjectResponse {
 }
 
 pub async fn create_project(
-    Authenticate(user): Authenticate,
+    Authenticate(user): Authenticate<ClaimsUser>,
     events_repository: EventsRepositoryExtractor,
     snapshots_repository: SnapshotsRepositoryExtractor,
     UsersClient(client): UsersClient,

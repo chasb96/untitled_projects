@@ -1,9 +1,10 @@
+use auth::client::axum::extractors::{Authenticate, ClaimsUser};
 use axum::{extract::{Path, Query}, http::{HeaderMap, StatusCode}, response::IntoResponse};
 use json_or_protobuf::JsonOrProtobuf;
 use or_status_code::{OrInternalServerError, OrStatusCode};
 use serde::Deserialize;
 
-use crate::host::axum::extractors::snapshots_repository::SnapshotsRepositoryExtractor;
+use crate::host::{axum::extractors::{metrics_queue::MetricsQueueExtractor, snapshots_repository::SnapshotsRepositoryExtractor}, metrics::ProjectViewed};
 use crate::host::repository::snapshots::SnapshotsRepository;
 
 use super::ApiResult;
@@ -43,6 +44,8 @@ pub struct GetProjectByIdQuery {
 }
 
 pub async fn get_project_by_id(
+    Authenticate(user): Authenticate<Option<ClaimsUser>>,
+    metrics_queue: MetricsQueueExtractor,
     snapshots_repository: SnapshotsRepositoryExtractor,
     headers: HeaderMap,
     Path(id): Path<String>,
@@ -58,6 +61,14 @@ pub async fn get_project_by_id(
         .await
         .or_internal_server_error()?
         .or_status_code(StatusCode::NOT_FOUND)?;
+
+    if user.is_none() || user.unwrap().id != project.user_id {
+        metrics_queue
+            .enqueue(ProjectViewed { 
+                id: project.id.clone()
+            })
+            .await;
+    }
 
     let response_body = ProjectResponse {
         id: project.id,

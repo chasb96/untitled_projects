@@ -19,6 +19,7 @@ host = [
     "dep:chrono",
     "dep:deadpool",
     "dep:rand",
+    "dep:async-channel",
     "dep:auth",
     "dep:users",
     "dep:json_or_protobuf",
@@ -45,6 +46,7 @@ chrono = { version = "0.4.38", optional = true }
 deadpool = { version = "0.12.0", features = ["managed"], optional = true }
 rand = { version = "0.8.5", optional = true }
 reqwest = { version = "0.12.4", optional = true }
+async-channel = { version = "2.3.1", optional = true }
 auth = { git = "https://github.com/chasb96/untitled_auth", default-features = false, features = ["client"], optional = true }
 users = { git = "https://github.com/chasb96/untitled_users", default-features = false, features = ["client"], optional = true }
 json_or_protobuf = { git = "https://github.com/chasb96/json_or_protobuf", optional = true }
