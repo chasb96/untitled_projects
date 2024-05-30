@@ -34,6 +34,7 @@ impl MessageQueue {
     }
 }
 
+#[allow(dead_code)]
 pub struct MessageQueueConsumer(JoinHandle<()>);
 
 impl MessageQueueConsumer {
