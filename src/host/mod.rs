@@ -9,7 +9,7 @@ mod configuration;
 mod health;
 mod routes;
 mod events;
-mod metrics;
+mod message_queue;
 
 pub fn router() -> Router {
     Router::new()
