@@ -1,7 +1,7 @@
 use rand::distributions::{Alphanumeric, DistString};
 use serde::Deserialize;
 
-use crate::host::events::RemoveFilesEvent;
+use crate::host::{events::RemoveFilesEvent, web::validate::{Validate, ValidationError}};
 
 #[derive(Deserialize)]
 pub struct RemoveFilesRequest {
@@ -15,5 +15,19 @@ impl Into<RemoveFilesEvent> for RemoveFilesRequest {
             event_id: Alphanumeric.sample_string(&mut rand::thread_rng(), 64),
             paths: self.paths,
         }
+    }
+}
+
+impl Validate for RemoveFilesRequest {
+    fn validate(&self) -> Result<(), ValidationError> {
+        if self.paths.is_empty() { return Err("Must remove atleast one file".into()); }
+
+        for path in &self.paths {
+            if path.starts_with(' ') { return Err("Path cannot start with whitespace".into()); }
+            if path.ends_with(' ') { return Err("Path cannot end with whitespace".into()); }
+            if path.is_empty() { return Err("Path cannot be empty".into()); }
+        }
+
+        Ok(())
     }
 }

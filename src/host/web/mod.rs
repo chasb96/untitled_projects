@@ -7,6 +7,8 @@ mod create_tag;
 mod list_tags;
 mod remove_tag;
 
+pub mod validate;
+
 pub use create_project::create_project;
 pub use get_project_by_id::get_project_by_id;
 pub use event::event;

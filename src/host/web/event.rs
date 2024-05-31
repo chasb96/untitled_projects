@@ -3,7 +3,7 @@ use axum::{extract::Path, response::IntoResponse, Json};
 use or_status_code::{OrInternalServerError, OrNotFound};
 use axum::http::StatusCode;
 
-use crate::host::{axum::extractors::{events_repository::EventsRepositoryExtractor, snapshots_repository::SnapshotsRepositoryExtractor}, events::EventKind};
+use crate::host::{axum::extractors::{events_repository::EventsRepositoryExtractor, snapshots_repository::SnapshotsRepositoryExtractor, validate::Validated}, events::EventKind};
 use crate::host::repository::snapshots::SnapshotsRepository;
 use crate::host::repository::events::EventsRepository;
 
@@ -14,7 +14,7 @@ pub async fn event(
     snapshots_repository: SnapshotsRepositoryExtractor,
     events_repository: EventsRepositoryExtractor,
     Path(project_id): Path<String>,
-    Json(request): Json<EventRequest>,
+    Validated(Json(request)): Validated<Json<EventRequest>>,
 ) -> ApiResult<impl IntoResponse> {
     let mut project = snapshots_repository
         .get_by_id(&project_id, "latest")

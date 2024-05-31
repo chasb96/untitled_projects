@@ -10,6 +10,8 @@ use serde::Deserialize;
 
 use crate::host::events::EventKind;
 
+use super::validate::{Validate, ValidationError};
+
 #[derive(Deserialize)]
 pub enum EventRequest {
     #[serde(rename = "af")]
@@ -26,6 +28,16 @@ impl Into<EventKind> for EventRequest {
             EventRequest::AddFiles(request) => EventKind::AddFiles(request.into()),
             EventRequest::RemoveFiles(request) => EventKind::RemoveFiles(request.into()),
             EventRequest::RenameFiles(request) => EventKind::RenameFiles(request.into()),
+        }
+    }
+}
+
+impl Validate for EventRequest {
+    fn validate(&self) -> Result<(), ValidationError> {
+        match self {
+            EventRequest::AddFiles(request) => request.validate(),
+            EventRequest::RemoveFiles(request) => request.validate(),
+            EventRequest::RenameFiles(request) => request.validate(),
         }
     }
 }
