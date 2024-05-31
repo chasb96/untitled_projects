@@ -45,7 +45,7 @@ pub struct GetProjectByIdQuery {
 
 pub async fn get_project_by_id(
     Authenticate(user): Authenticate<Option<ClaimsUser>>,
-    metrics_queue: MessageQueueExtractor,
+    message_queue: MessageQueueExtractor,
     snapshots_repository: SnapshotsRepositoryExtractor,
     headers: HeaderMap,
     Path(id): Path<String>,
@@ -63,8 +63,8 @@ pub async fn get_project_by_id(
         .or_status_code(StatusCode::NOT_FOUND)?;
 
     if user.is_none() || user.unwrap().id != project.user_id {
-        metrics_queue
-            .enqueue(ProjectViewed { 
+        message_queue
+            .send(ProjectViewed { 
                 id: project.id.clone()
             })
             .await;

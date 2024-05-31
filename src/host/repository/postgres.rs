@@ -44,7 +44,7 @@ impl Default for PostgresDatabase {
         Self {
             connection_pool: CONNECTION_POOL
                 .get_or_init(|| {
-                    let configuration = Configuration::configured();
+                    let configuration = <&Configuration>::default();
 
                     let manager = ConnectionManager {
                         connection_string: configuration.database_url.to_string(),

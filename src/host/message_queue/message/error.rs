@@ -5,6 +5,7 @@ use crate::host::repository::error::QueryError;
 #[derive(Debug)]
 pub enum HandleError {
     QueryError(QueryError),
+    UserClientError(users::client::Error),
 }
 
 impl Error for HandleError { }
@@ -15,6 +16,7 @@ impl Display for HandleError {
 
         match self {
             Self::QueryError(e) => write!(f, "QueryError({})", e),
+            Self::UserClientError(e) => write!(f, "UserClientError({})", e),
         }
     }
 }
@@ -22,5 +24,11 @@ impl Display for HandleError {
 impl From<QueryError> for HandleError {
     fn from(value: QueryError) -> Self {
         HandleError::QueryError(value)
+    }
+}
+
+impl From<users::client::Error> for HandleError {
+    fn from(value: users::client::Error) -> Self {
+        HandleError::UserClientError(value)
     }
 }

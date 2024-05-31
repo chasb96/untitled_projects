@@ -4,10 +4,11 @@ use or_status_code::{OrInternalServerError, OrNotFound};
 use serde::Deserialize;
 use axum::http::StatusCode;
 
+use crate::host::axum::extractors::message_queue::MessageQueueExtractor;
 use crate::host::axum::extractors::validate::Validated;
-use crate::host::axum::extractors::{snapshots_repository::SnapshotsRepositoryExtractor, tags_repository::TagsRepositoryExtractor};
+use crate::host::axum::extractors::snapshots_repository::SnapshotsRepositoryExtractor;
+use crate::host::message_queue::CreateTag;
 use crate::host::repository::snapshots::SnapshotsRepository;
-use crate::host::repository::tags::TagsRepository;
 
 use super::validate::{Validate, ValidationError};
 use super::ApiResult;
@@ -33,7 +34,7 @@ impl Validate for CreateTagRequest {
 pub async fn create_tag(
     Authenticate(user): Authenticate<ClaimsUser>,
     snapshots_repository: SnapshotsRepositoryExtractor,
-    tags_repository: TagsRepositoryExtractor,
+    message_queue: MessageQueueExtractor,
     Path(project_id): Path<String>,
     Validated(Json(request)): Validated<Json<CreateTagRequest>>,
 ) -> ApiResult<impl IntoResponse> {
@@ -47,17 +48,12 @@ pub async fn create_tag(
         return Err(StatusCode::FORBIDDEN);
     }
 
-    let tags = tags_repository
-        .list(&project_id)
-        .await
-        .or_internal_server_error()?;
-
-    if !tags.contains(&request.tag.to_lowercase()) {
-        tags_repository
-            .create(&project_id, &request.tag.to_lowercase())
-            .await
-            .or_internal_server_error()?;
-    }
+    message_queue
+        .send(CreateTag {
+            project_id,
+            tag: request.tag.to_lowercase(),
+        })
+        .await;
 
     Ok(StatusCode::ACCEPTED)
 }

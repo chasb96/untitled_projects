@@ -9,17 +9,15 @@ pub struct Configuration {
     pub database_url: String,
 }
 
-impl Configuration {
-    pub fn configured() -> &'static Self {
-        let config = CONFIGURATION
+impl Default for &Configuration {
+    fn default() -> Self {
+        CONFIGURATION
             .get_or_init(|| {
                 let database_url = env::var("PROJECTS_DATABASE_URL").log_unwrap();
 
                 Configuration {
                     database_url,
                 }
-            });
-
-        &config
+            })
     }
 }

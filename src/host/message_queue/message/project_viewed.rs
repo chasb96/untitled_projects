@@ -1,13 +1,13 @@
 use crate::host::repository::metrics::{MetricsRepository, MetricsRepositoryOption};
 
-use super::{error::HandleError, Message};
+use super::{error::HandleError, Message, Queueable};
 
 pub struct ProjectViewed {
     pub id: String,
 }
 
-impl ProjectViewed {
-    pub async fn handle(&self) -> Result<(), HandleError> {
+impl Queueable for ProjectViewed {
+    async fn handle(self) -> Result<(), HandleError> {
         MetricsRepositoryOption::default()
             .increment_view_count(&self.id)
             .await

@@ -3,16 +3,17 @@ use axum::{extract::Path, response::IntoResponse};
 use or_status_code::{OrInternalServerError, OrNotFound};
 use axum::http::StatusCode;
 
-use crate::host::axum::extractors::{snapshots_repository::SnapshotsRepositoryExtractor, tags_repository::TagsRepositoryExtractor};
+use crate::host::axum::extractors::message_queue::MessageQueueExtractor;
+use crate::host::axum::extractors::snapshots_repository::SnapshotsRepositoryExtractor;
+use crate::host::message_queue::RemoveTag;
 use crate::host::repository::snapshots::SnapshotsRepository;
-use crate::host::repository::tags::TagsRepository;
 
 use super::ApiResult;
 
 pub async fn remove_tag(
     Authenticate(user): Authenticate<ClaimsUser>,
     snapshots_repository: SnapshotsRepositoryExtractor,
-    tags_repository: TagsRepositoryExtractor,
+    message_queue: MessageQueueExtractor,
     Path((project_id, tag)): Path<(String, String)>,
 ) -> ApiResult<impl IntoResponse> {
     let project = snapshots_repository
@@ -25,10 +26,12 @@ pub async fn remove_tag(
         return Err(StatusCode::FORBIDDEN);
     }
 
-    tags_repository
-        .delete(&project_id, &tag.to_lowercase())
-        .await
-        .or_internal_server_error()?;
+    message_queue
+        .send(RemoveTag {
+            project_id,
+            tag: tag.to_lowercase(),
+        })
+        .await;
 
-    Ok(StatusCode::NO_CONTENT)
+    Ok(StatusCode::ACCEPTED)
 }

@@ -1,6 +1,11 @@
 mod message;
 
 pub use message::project_viewed::ProjectViewed;
+pub use message::create_tag::CreateTag;
+pub use message::create_snapshot::CreateSnapshot;
+pub use message::remove_tag::RemoveTag;
+pub use message::assign_project::AssignProject;
+use message::Queueable;
 
 use std::sync::OnceLock;
 
@@ -42,7 +47,9 @@ impl MessageQueueConsumer {
         Self(spawn(async move {
             loop {
                 match reciever.recv().await {
-                    Ok(message) => message.handle().await.unwrap_or_else(|e| error!("Error handling message: {}", e)),
+                    Ok(message) => if let Err(e) = message.handle().await {
+                        error!("Error handling message: {}", e)
+                    }
                     Err(e) => error!("Error receiving message: {}", e),
                 };
             }
@@ -58,15 +65,17 @@ impl MessageQueueProducer {
         Self(sender)
     }
 
-    pub async fn enqueue(&self, message: impl Into<Message>) {
-        self.0.send(message.into()).await.expect("Error sending message");
+    pub async fn send(&self, message: impl Into<Message>) {
+        _ = self.0
+            .send(message.into())
+            .await;
     }
 }
 
 impl Default for MessageQueueProducer {
     fn default() -> Self {
-        let queue = MESSAGE_QUEUE.get_or_init(MessageQueue::new);
-
-        queue.producer()
+        MESSAGE_QUEUE
+            .get_or_init(MessageQueue::new)
+            .producer()
     }
 }

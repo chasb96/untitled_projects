@@ -4,13 +4,12 @@ use axum::{http::StatusCode, Json};
 use or_status_code::OrInternalServerError;
 use rand::distributions::{Alphanumeric, DistString};
 use serde::{Deserialize, Serialize};
-use users::client::{axum::extractors::UsersClient, ProjectRequest};
 
-use crate::host::axum::extractors::snapshots_repository::SnapshotsRepositoryExtractor;
+use crate::host::axum::extractors::message_queue::MessageQueueExtractor;
 use crate::host::axum::extractors::validate::Validated;
+use crate::host::message_queue::{AssignProject, CreateSnapshot};
 use crate::host::{axum::extractors::events_repository::EventsRepositoryExtractor, events::CreateEvent};
 use crate::host::repository::events::EventsRepository;
-use crate::host::repository::snapshots::SnapshotsRepository;
 
 use super::validate::{Validate, ValidationError};
 use super::ApiResult;
@@ -39,8 +38,7 @@ pub struct CreateProjectResponse {
 pub async fn create_project(
     Authenticate(user): Authenticate<ClaimsUser>,
     events_repository: EventsRepositoryExtractor,
-    snapshots_repository: SnapshotsRepositoryExtractor,
-    UsersClient(client): UsersClient,
+    message_queue: MessageQueueExtractor,
     Validated(Json(request)): Validated<Json<CreateProjectRequest>>
 ) -> ApiResult<impl IntoResponse> {
     let project_id = Alphanumeric.sample_string(&mut rand::thread_rng(), 16);
@@ -57,26 +55,25 @@ pub async fn create_project(
         .await
         .or_internal_server_error()?;
 
-    snapshots_repository
-        .create(&project_id, "latest", event)
-        .await
-        .or_internal_server_error()?;
+    message_queue
+        .send(CreateSnapshot {
+            project_id: project_id.clone(),
+            version: "latest".to_string(),
+            snapshot: event.into(),
+        })
+        .await;
 
-    let add_project_request = ProjectRequest {
-        project_id: project_id.to_owned(),
-    };
+    message_queue
+        .send(AssignProject {
+            user_id: user.id,
+            project_id: project_id.clone(),
+        })
+        .await;
 
-    client
-        .add_project(user.id, add_project_request)
-        .await
-        .or_internal_server_error()?;
-
-    let response = (
+    Ok((
         StatusCode::CREATED,
         Json(CreateProjectResponse {
             id: project_id,
         }),
-    );
-
-    Ok(response)
+    ))
 }
