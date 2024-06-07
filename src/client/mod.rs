@@ -6,10 +6,11 @@ use std::env;
 
 use prost::Message;
 pub use response::ProjectResponse;
+pub use response::SearchResponse;
+pub use response::SearchRecord;
 pub use error::Error;
 
 use reqwest::{header::{ACCEPT, CONTENT_TYPE}, Client};
-use response::SearchResponse;
 
 pub struct ProjectsClient {
     http_client: Client,
