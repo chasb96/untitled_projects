@@ -6,6 +6,7 @@ mod list_projects;
 mod create_tag;
 mod list_tags;
 mod remove_tag;
+mod search_projects;
 
 pub mod validate;
 
@@ -16,6 +17,7 @@ pub use list_projects::list_projects;
 pub use create_tag::create_tag;
 pub use list_tags::list_tags;
 pub use remove_tag::remove_tag;
+pub use search_projects::search_projects;
 
 use axum::http::StatusCode;
 

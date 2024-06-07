@@ -6,6 +6,7 @@ use crate::host::repository::error::QueryError;
 pub enum HandleError {
     QueryError(QueryError),
     UserClientError(users::client::Error),
+    NotFoundError(String),
 }
 
 impl Error for HandleError { }
@@ -17,6 +18,7 @@ impl Display for HandleError {
         match self {
             Self::QueryError(e) => write!(f, "QueryError({})", e),
             Self::UserClientError(e) => write!(f, "UserClientError({})", e),
+            Self::NotFoundError(e) => write!(f, "NotFoundError({})", e),
         }
     }
 }

@@ -9,6 +9,7 @@ pub use response::ProjectResponse;
 pub use error::Error;
 
 use reqwest::{header::{ACCEPT, CONTENT_TYPE}, Client};
+use response::SearchResponse;
 
 pub struct ProjectsClient {
     http_client: Client,
@@ -35,6 +36,19 @@ impl ProjectsClient {
             .await?;
 
         Ok(ProjectResponse::decode(response)?)
+    }
+
+    pub async fn search(&self, query: &str) -> Result<SearchResponse, Error> {
+        let response = self.http_client
+            .get(format!("{}/projects/search?q={}", self.base_url, query))
+            .header(ACCEPT, "application/octet-stream")
+            .send()
+            .await?
+            .error_for_status()?
+            .bytes()
+            .await?;
+
+        Ok(SearchResponse::decode(response)?)
     }
 }
 

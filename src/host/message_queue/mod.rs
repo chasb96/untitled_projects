@@ -5,6 +5,7 @@ pub use message::create_tag::CreateTag;
 pub use message::create_snapshot::CreateSnapshot;
 pub use message::remove_tag::RemoveTag;
 pub use message::assign_project::AssignProject;
+pub use message::create_project::CreateProject;
 use message::Queueable;
 
 use std::sync::OnceLock;
