@@ -11,6 +11,8 @@ pub struct SearchRecord {
 pub trait SearchRepository {
     async fn create(&self, project_id: &str, name: &str, value: &str) -> Result<(), QueryError>;
 
+    async fn delete(&self, project_id: &str, value: &str) -> Result<(), QueryError>;
+
     async fn query(&self, terms: Vec<&str>) -> Result<Vec<SearchRecord>, QueryError>;
 }
 
@@ -22,6 +24,12 @@ impl SearchRepository for SearchRepositoryOption {
     async fn create(&self, project_id: &str, name: &str, value: &str) -> Result<(), QueryError> {
         match self {
             SearchRepositoryOption::Postgres(db) => db.create(project_id, name, value).await,
+        }
+    }
+
+    async fn delete(&self, project_id: &str, value: &str) -> Result<(), QueryError> {
+        match self {
+            SearchRepositoryOption::Postgres(db) => db.delete(project_id, value).await,
         }
     }
 

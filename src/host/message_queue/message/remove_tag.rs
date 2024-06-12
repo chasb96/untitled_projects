@@ -1,4 +1,4 @@
-use crate::host::repository::tags::{TagsRepository, TagsRepositoryOption};
+use crate::host::repository::{search::{SearchRepository, SearchRepositoryOption}, tags::{TagsRepository, TagsRepositoryOption}};
 
 use super::{Message, Queueable};
 
@@ -12,7 +12,11 @@ impl Queueable for RemoveTag {
         let tags_repository = TagsRepositoryOption::default();
         
         tags_repository
-            .delete(&self.project_id, &self.tag.to_lowercase())
+            .delete(&self.project_id, &self.tag)
+            .await?;
+
+        SearchRepositoryOption::default()
+            .delete(&self.project_id, &self.tag)
             .await?;
 
         Ok(())
