@@ -3,4 +3,6 @@ pub mod snapshots_repository;
 pub mod message_queue;
 pub mod tags_repository;
 pub mod search_repository;
+pub mod threads_repository;
+
 pub mod validate;
