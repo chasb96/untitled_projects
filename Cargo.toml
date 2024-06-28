@@ -25,7 +25,8 @@ host = [
     "dep:json_or_protobuf",
     "dep:or_status_code",
     "dep:log_unwrap",
-    "dep:log_layer"
+    "dep:log_layer",
+    "dep:redis",
 ]
 client = ["dep:reqwest"]
 
@@ -53,3 +54,4 @@ json_or_protobuf = { git = "https://github.com/chasb96/json_or_protobuf", option
 or_status_code = { git = "https://github.com/chasb96/or_status_code", optional = true }
 log_unwrap = { git = "https://github.com/chasb96/log_unwrap", optional = true }
 log_layer = { git = "https://github.com/chasb96/log_layer", optional = true }
+redis = { version = "0.25.4", features = ["async-std-comp", "aio", "ahash", "r2d2"], optional = true }

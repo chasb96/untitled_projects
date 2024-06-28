@@ -1,19 +1,25 @@
 use std::collections::HashMap;
+use prost::Message;
 use serde::{Deserialize, Serialize};
 
 use super::Event;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Message)]
 pub struct Snapshot {
     #[serde(rename = "id")]
+    #[prost(string, tag = "1")]
     pub id: String,
     #[serde(rename = "n")]
+    #[prost(string, tag = "2")]
     pub name: String,
     #[serde(rename = "uid")]
+    #[prost(int32, tag = "3")]
     pub user_id: i32,
     #[serde(rename = "eid")]
+    #[prost(string, tag = "4")]
     pub event_id: String,
     #[serde(rename = "f")]
+    #[prost(map = "string, string", tag = "5")]
     pub files: HashMap<String, String>,
 }
 
