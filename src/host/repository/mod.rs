@@ -9,3 +9,6 @@ pub mod tags;
 pub mod search;
 pub mod threads;
 pub mod redis;
+pub mod source_requests;
+
+pub const EVENT_ID_LENGTH: usize = 16;

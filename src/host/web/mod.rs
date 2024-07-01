@@ -8,6 +8,7 @@ mod list_tags;
 mod remove_tag;
 mod search_projects;
 mod threads;
+mod source_requests;
 
 pub mod validate;
 
@@ -24,6 +25,12 @@ pub use threads::create_thread;
 pub use threads::get_thread_by_id;
 pub use threads::list_threads;
 pub use threads::create_comment;
+
+pub use source_requests::create_source_request;
+pub use source_requests::list_source_requests_by_project;
+pub use source_requests::get_source_request;
+pub use source_requests::approve_source_request;
+pub use source_requests::complete_source_request;
 
 use axum::http::StatusCode;
 

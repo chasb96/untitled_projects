@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use rand::distributions::{Alphanumeric, DistString};
 use serde::Deserialize;
 
-use crate::host::{events::RenameFilesEvent, web::validate::{Validate, ValidationError}};
+use crate::host::{events::RenameFilesEvent, repository::EVENT_ID_LENGTH, web::validate::{Validate, ValidationError}};
 
 #[derive(Deserialize)]
 pub struct RenameFilesRequest {
@@ -14,7 +14,7 @@ pub struct RenameFilesRequest {
 impl Into<RenameFilesEvent> for RenameFilesRequest {
     fn into(self) -> RenameFilesEvent {
         RenameFilesEvent {
-            event_id: Alphanumeric.sample_string(&mut rand::thread_rng(), 64),
+            event_id: Alphanumeric.sample_string(&mut rand::thread_rng(), EVENT_ID_LENGTH),
             paths: self.paths,
         }
     }

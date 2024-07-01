@@ -1,6 +1,6 @@
 use axum::{routing::{delete, get, post, put}, Router};
 
-use super::web::{create_comment, create_project, create_tag, create_thread, event, get_project_by_id, get_thread_by_id, list_projects, list_tags, list_threads, remove_tag, search_projects};
+use super::web::*;
 
 pub trait ProjectsRouter {
     fn register_projects_routes(self) -> Self;
@@ -20,5 +20,10 @@ impl ProjectsRouter for Router {
             .route("/projects/:project_id/threads", post(create_thread))
             .route("/projects/:project_id/threads/:thread_id", get(get_thread_by_id))
             .route("/projects/:project_id/threads/:thread_id/comments", post(create_comment))
+            .route("/projects/:project_id/source_requests", get(list_source_requests_by_project))
+            .route("/projects/:project_id/source_requests", post(create_source_request))
+            .route("/projects/:project_id/source_requests/:source_request_id", get(get_source_request))
+            .route("/projects/:project_id/source_requests/:source_request_id/approve", post(approve_source_request))
+            .route("/projects/:project_id/source_requests/:source_request_id/complete", post(complete_source_request))
     }
 }

@@ -1,7 +1,7 @@
 use rand::distributions::{Alphanumeric, DistString};
 use serde::Deserialize;
 
-use crate::host::{events::RemoveFilesEvent, web::validate::{Validate, ValidationError}};
+use crate::host::{events::RemoveFilesEvent, repository::EVENT_ID_LENGTH, web::validate::{Validate, ValidationError}};
 
 #[derive(Deserialize)]
 pub struct RemoveFilesRequest {
@@ -12,7 +12,7 @@ pub struct RemoveFilesRequest {
 impl Into<RemoveFilesEvent> for RemoveFilesRequest {
     fn into(self) -> RemoveFilesEvent {
         RemoveFilesEvent {
-            event_id: Alphanumeric.sample_string(&mut rand::thread_rng(), 64),
+            event_id: Alphanumeric.sample_string(&mut rand::thread_rng(), EVENT_ID_LENGTH),
             paths: self.paths,
         }
     }

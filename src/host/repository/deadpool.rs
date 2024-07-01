@@ -1,6 +1,6 @@
 use deadpool::managed::{Manager, Metrics, RecycleError, RecycleResult};
 use redis::{aio::MultiplexedConnection, Client, RedisError};
-use sqlx::{PgConnection, Error, Connection};
+use sqlx::{Connection, Error, PgConnection};
 
 pub struct PostgresConnectionManager {
     pub connection_string: String
@@ -14,8 +14,10 @@ impl Manager for PostgresConnectionManager {
         PgConnection::connect(&self.connection_string).await
     }
     
-    async fn recycle(&self, _: &mut PgConnection, _: &Metrics) -> RecycleResult<Self::Error> {
-        Ok(())
+    async fn recycle(&self, conn: &mut PgConnection, _: &Metrics) -> RecycleResult<Self::Error> {
+        conn.ping()
+            .await
+            .map_err(|e| RecycleError::message(format!("Failed to ping postgres: {}", e)))
     }
 }
 

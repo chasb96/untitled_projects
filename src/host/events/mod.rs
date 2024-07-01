@@ -7,6 +7,7 @@ mod remove_files_event;
 mod add_files_event;
 mod create_event;
 mod rename_files_event;
+mod source_request_append;
 
 pub use name_event::NameEvent;
 pub use set_owner_event::SetOwnerEvent;
@@ -16,6 +17,9 @@ pub use add_files_event::FileMap;
 pub use create_event::CreateEvent;
 pub use snapshot::Snapshot;
 pub use rename_files_event::RenameFilesEvent;
+pub use source_request_append::SourceRequestAppend;
+
+use super::repository;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub enum EventKind {
@@ -31,6 +35,8 @@ pub enum EventKind {
     RemoveFiles(RemoveFilesEvent),
     #[serde(rename = "mv")]
     RenameFiles(RenameFilesEvent),
+    #[serde(rename = "sra")]
+    SourceRequestAppend(SourceRequestAppend),
 }
 
 pub trait Event {
@@ -48,6 +54,7 @@ impl Event for EventKind {
             EventKind::AddFiles(e) => e.apply(entity),
             EventKind::RemoveFiles(e) => e.apply(entity),
             EventKind::RenameFiles(e) => e.apply(entity),
+            EventKind::SourceRequestAppend(e) => e.apply(entity),
         }
     }
     
@@ -59,6 +66,13 @@ impl Event for EventKind {
             EventKind::AddFiles(e) => e.event_id(),
             EventKind::RemoveFiles(e) => e.event_id(),
             EventKind::RenameFiles(e) => e.event_id(),
+            EventKind::SourceRequestAppend(e) => e.event_id(),
         }
+    }
+}
+
+impl From<repository::source_requests::CompletedSourceRequest> for EventKind {
+    fn from(source_request: repository::source_requests::CompletedSourceRequest) -> Self {
+        EventKind::SourceRequestAppend(SourceRequestAppend::from(source_request))
     }
 }

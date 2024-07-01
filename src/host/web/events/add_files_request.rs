@@ -1,7 +1,7 @@
 use rand::distributions::{Alphanumeric, DistString};
 use serde::Deserialize;
 
-use crate::host::{events::{AddFilesEvent, FileMap}, web::validate::{Validate, ValidationError}};
+use crate::host::{events::{AddFilesEvent, FileMap}, repository::EVENT_ID_LENGTH, web::validate::{Validate, ValidationError}};
 
 #[derive(Deserialize)]
 pub struct AddFilesRequest {
@@ -20,7 +20,7 @@ pub struct AddFileRequest {
 impl Into<AddFilesEvent> for AddFilesRequest {
     fn into(self) -> AddFilesEvent {
         AddFilesEvent {
-            event_id: Alphanumeric.sample_string(&mut rand::thread_rng(), 64),
+            event_id: Alphanumeric.sample_string(&mut rand::thread_rng(), EVENT_ID_LENGTH),
             files: self.files
                 .into_iter()
                 .map(|file_request| FileMap {

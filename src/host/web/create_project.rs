@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 use crate::host::axum::extractors::message_queue::MessageQueueExtractor;
 use crate::host::axum::extractors::validate::Validated;
 use crate::host::message_queue::{AssignProject, CreateProject, CreateSnapshot};
+use crate::host::repository::EVENT_ID_LENGTH;
 use crate::host::{axum::extractors::events_repository::EventsRepositoryExtractor, events::CreateEvent};
 use crate::host::repository::events::EventsRepository;
 
@@ -45,7 +46,7 @@ pub async fn create_project(
 
     let event = CreateEvent { 
         id: project_id.to_owned(), 
-        event_id: Alphanumeric.sample_string(&mut rand::thread_rng(), 64),
+        event_id: Alphanumeric.sample_string(&mut rand::thread_rng(), EVENT_ID_LENGTH),
         name: request.name.clone(), 
         owner_id: user.id 
     };
