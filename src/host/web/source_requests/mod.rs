@@ -3,6 +3,7 @@ mod list_source_requests_by_project;
 mod get_source_request;
 mod approve_source_request;
 mod complete_source_request;
+pub mod comments;
 
 use std::collections::HashSet;
 
@@ -11,6 +12,7 @@ pub use list_source_requests_by_project::list_source_requests_by_project;
 pub use get_source_request::get_source_request;
 pub use approve_source_request::approve_source_request;
 pub use complete_source_request::complete_source_request;
+
 use serde::{Deserialize, Serialize};
 
 use crate::host::repository::source_requests;

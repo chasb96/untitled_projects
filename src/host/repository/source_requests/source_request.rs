@@ -58,6 +58,14 @@ impl<'a> CreateSourceRequest<'a> {
 }
 
 impl SourceRequest {
+    pub fn project_id(&self) -> &str {
+        match self {
+            SourceRequest::New(new) => &new.project_id,
+            SourceRequest::Approved(approved) => &approved.project_id,
+            SourceRequest::Completed(completed) => &completed.project_id,
+        }
+    }
+
     pub fn user_id(&self) -> i32 {
         match self {
             SourceRequest::New(new) => new.user_id,

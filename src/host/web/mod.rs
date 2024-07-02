@@ -32,6 +32,9 @@ pub use source_requests::get_source_request;
 pub use source_requests::approve_source_request;
 pub use source_requests::complete_source_request;
 
+pub use source_requests::comments::create_source_request_comment;
+pub use source_requests::comments::list_source_request_comments;
+
 use axum::http::StatusCode;
 
 type ApiResult<T> = Result<T, StatusCode>;

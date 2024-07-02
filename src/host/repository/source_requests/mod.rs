@@ -5,6 +5,7 @@ mod approvable;
 mod source_request;
 mod completed;
 mod completable;
+pub mod comments;
 
 pub use new::{NewSourceRequest, NewSourceRequestSummary, CreateNewSourceRequest};
 pub use approved::{ApprovedSourceRequest, ApprovedSourceRequestSummary};
