@@ -13,8 +13,8 @@ pub struct Snapshot {
     #[prost(string, tag = "2")]
     pub name: String,
     #[serde(rename = "uid")]
-    #[prost(int32, tag = "3")]
-    pub user_id: i32,
+    #[prost(string, tag = "3")]
+    pub user_id: String,
     #[serde(rename = "eid")]
     #[prost(string, tag = "4")]
     pub event_id: String,
@@ -28,7 +28,7 @@ impl Snapshot {
         Self {
             id: String::new(),
             name: String::new(),
-            user_id: 0,
+            user_id: String::new(),
             event_id: String::new(),
             files: HashMap::new(),
         }

@@ -18,7 +18,7 @@ pub struct CommentResponse {
     #[serde(rename = "i")]
     id: i32,
     #[serde(rename = "u")]
-    user_id: i32,
+    user_id: String,
     #[serde(rename = "c")]
     content: String,
     #[serde(rename = "cr")]

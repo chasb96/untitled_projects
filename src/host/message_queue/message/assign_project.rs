@@ -3,7 +3,7 @@ use users::client::{ProjectRequest, UsersClient};
 use super::{error::HandleError, Message, Queueable};
 
 pub struct AssignProject {
-    pub user_id: i32,
+    pub user_id: String,
     pub project_id: String,
 }
 

@@ -5,14 +5,14 @@ use crate::host::repository::{error::QueryError, postgres::PostgresDatabase};
 pub struct SourceRequestComment {
     pub id: i32,
     pub source_request_id: i32,
-    pub user_id: i32,
+    pub user_id: String,
     pub content: String,
     pub created_at: chrono::NaiveDateTime,
 }
 
 pub struct CreateSourceRequestComment<'a> {
     pub source_request_id: i32,
-    pub user_id: i32,
+    pub user_id: &'a str,
     pub content: &'a str,
     pub created_at: &'a chrono::NaiveDateTime,
 }

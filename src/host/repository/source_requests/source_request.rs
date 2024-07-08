@@ -44,7 +44,7 @@ impl<'a> CreateSourceRequest<'a> {
         }
     }
 
-    pub fn user_id(&self) -> i32 {
+    pub fn user_id(&self) -> &str {
         match self {
             CreateSourceRequest::New(new) => new.user_id,
         }
@@ -66,11 +66,11 @@ impl SourceRequest {
         }
     }
 
-    pub fn user_id(&self) -> i32 {
+    pub fn user_id(&self) -> &str {
         match self {
-            SourceRequest::New(new) => new.user_id,
-            SourceRequest::Approved(approved) => approved.user_id,
-            SourceRequest::Completed(completed) => completed.user_id,
+            SourceRequest::New(new) => &new.user_id,
+            SourceRequest::Approved(approved) => &approved.user_id,
+            SourceRequest::Completed(completed) => &completed.user_id,
         }
     }
 
@@ -79,6 +79,14 @@ impl SourceRequest {
             SourceRequest::New(_) => 0,
             SourceRequest::Approved(_) => 1,
             SourceRequest::Completed(_) => 2,
+        }
+    }
+
+    pub fn files(self) -> Vec<FileMap> {
+        match self {
+            SourceRequest::New(new) => new.files,
+            SourceRequest::Approved(approved) => approved.files,
+            SourceRequest::Completed(completed) => completed.files,
         }
     }
 }

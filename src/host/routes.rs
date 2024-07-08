@@ -25,6 +25,7 @@ impl ProjectsRouter for Router {
             .route("/projects/:project_id/source_requests/:source_request_id", get(get_source_request))
             .route("/projects/:project_id/source_requests/:source_request_id/approve", post(approve_source_request))
             .route("/projects/:project_id/source_requests/:source_request_id/complete", post(complete_source_request))
+            .route("/projects/:project_id/source_requests/:source_request_id/diff", get(source_request_diff))
             .route("/projects/:project_id/source_requests/:source_request_id/comments", get(list_source_request_comments))
             .route("/projects/:project_id/source_requests/:source_request_id/comments", post(create_source_request_comment))
     }

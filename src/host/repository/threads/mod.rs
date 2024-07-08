@@ -4,7 +4,7 @@ use super::{error::QueryError, postgres::PostgresDatabase};
 
 pub struct NewThread<'a> {
     pub project_id: &'a str,
-    pub user_id: i32,
+    pub user_id: &'a str,
     pub title: &'a str,
     pub created_at: &'a chrono::NaiveDateTime,
 }
@@ -12,14 +12,14 @@ pub struct NewThread<'a> {
 pub struct Thread {
     pub id: i32,
     pub project_id: String,
-    pub user_id: i32,
+    pub user_id: String,
     pub title: String,
     pub created_at: chrono::NaiveDateTime,
 }
 
 pub struct NewComment<'a> {
     pub thread_id: i32,
-    pub user_id: i32,
+    pub user_id: &'a str,
     pub content: &'a str,
     pub created_at: &'a chrono::NaiveDateTime,
 }
@@ -27,7 +27,7 @@ pub struct NewComment<'a> {
 pub struct Comment {
     pub id: i32,
     pub thread_id: i32,
-    pub user_id: i32,
+    pub user_id: String,
     pub content: String,
     pub created_at: chrono::NaiveDateTime,
 }

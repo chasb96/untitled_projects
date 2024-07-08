@@ -9,13 +9,13 @@ pub struct CompletedSourceRequest {
     #[serde(rename = "p")]
     pub project_id: String,
     #[serde(rename = "u")]
-    pub user_id: i32,
+    pub user_id: String,
     #[serde(rename = "t")]
     pub title: String,
     #[serde(rename = "d")]
     pub description: String,
     #[serde(rename = "a")]
-    pub approvers: HashSet<i32>,
+    pub approvers: HashSet<String>,
     #[serde(rename = "f")]
     pub files: Vec<FileMap>,
 }
@@ -25,7 +25,7 @@ pub struct CompletedSourceRequestSummary {
     #[serde(rename = "p")]
     pub project_id: String,
     #[serde(rename = "u")]
-    pub user_id: i32,
+    pub user_id: String,
     #[serde(rename = "t")]
     pub title: String,
 }

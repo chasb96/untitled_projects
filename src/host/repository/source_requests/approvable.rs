@@ -9,7 +9,7 @@ pub enum Approvable {
 }
 
 impl Approvable {
-    pub fn approve(self, approver: i32) -> ApprovedSourceRequest {
+    pub fn approve(self, approver: String) -> ApprovedSourceRequest {
         match self {
             Approvable::New(new) => new.approve(approver),
             Approvable::Approved(approved) => approved.approve(approver),

@@ -12,7 +12,7 @@ pub struct CreateEvent {
     #[serde(rename = "n")]
     pub name: String,
     #[serde(rename = "uid")]
-    pub owner_id: i32,
+    pub owner_id: String,
 }
 
 impl Event for CreateEvent {

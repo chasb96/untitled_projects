@@ -31,6 +31,7 @@ pub use source_requests::list_source_requests_by_project;
 pub use source_requests::get_source_request;
 pub use source_requests::approve_source_request;
 pub use source_requests::complete_source_request;
+pub use source_requests::source_request_diff;
 
 pub use source_requests::comments::create_source_request_comment;
 pub use source_requests::comments::list_source_request_comments;

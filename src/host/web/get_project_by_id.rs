@@ -21,8 +21,8 @@ pub struct ProjectResponse {
     #[prost(string, tag = "2")]
     pub name: String,
     #[serde(rename = "uid")]
-    #[prost(int32, tag = "3")]
-    pub user_id: i32,
+    #[prost(string, tag = "3")]
+    pub user_id: String,
     #[serde(rename = "f")]
     #[prost(message, repeated, tag = "4")]
     pub files: Vec<ProjectFileReponse>,

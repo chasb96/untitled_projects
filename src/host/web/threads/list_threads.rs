@@ -15,7 +15,7 @@ pub struct ListThreadsResponse {
 pub struct ThreadResponse {
     pub id: i32,
     #[serde(rename = "u")]
-    pub user_id: i32,
+    pub user_id: String,
     #[serde(rename = "t")]
     pub title: String,
     #[serde(rename = "cr")]

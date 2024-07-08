@@ -51,7 +51,9 @@ impl From<repository::source_requests::FileMap> for FileMap {
 impl Event for SourceRequestAppend {
     fn apply(self, entity: &mut Snapshot) {
         for file in self.files {
-            entity.files.insert(file.path, file.file_id);
+            if entity.files.contains_key(&file.path) {
+                entity.files.insert(file.path, file.file_id);
+            }
         }
         
         entity.event_id = self.event_id;

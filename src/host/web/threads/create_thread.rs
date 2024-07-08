@@ -38,7 +38,7 @@ pub async fn create_thread(
     let thread_id = threads_repository
         .create(NewThread {
             project_id: &project_id,
-            user_id: user.id,
+            user_id: &user.id,
             title: &request.title,
             created_at: &Utc::now().naive_utc(),
         })

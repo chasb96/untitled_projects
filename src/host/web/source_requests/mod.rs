@@ -3,6 +3,7 @@ mod list_source_requests_by_project;
 mod get_source_request;
 mod approve_source_request;
 mod complete_source_request;
+mod source_request_diff;
 pub mod comments;
 
 use std::collections::HashSet;
@@ -12,6 +13,7 @@ pub use list_source_requests_by_project::list_source_requests_by_project;
 pub use get_source_request::get_source_request;
 pub use approve_source_request::approve_source_request;
 pub use complete_source_request::complete_source_request;
+pub use source_request_diff::source_request_diff;
 
 use serde::{Deserialize, Serialize};
 
@@ -93,7 +95,7 @@ struct NewSourceRequest {
     #[serde(rename = "p")]
     project_id: String,
     #[serde(rename = "u")]
-    user_id: i32,
+    user_id: String,
     #[serde(rename = "t")]
     title: String,
     #[serde(rename = "d")]
@@ -107,7 +109,7 @@ struct NewSourceRequestSummary {
     #[serde(rename = "p")]
     project_id: String,
     #[serde(rename = "u")]
-    user_id: i32,
+    user_id: String,
     #[serde(rename = "t")]
     title: String,
 }
@@ -142,13 +144,13 @@ struct ApprovedSourceRequest {
     #[serde(rename = "p")]
     project_id: String,
     #[serde(rename = "u")]
-    user_id: i32,
+    user_id: String,
     #[serde(rename = "t")]
     title: String,
     #[serde(rename = "d")]
     description: String,
     #[serde(rename = "a")]
-    approvers: HashSet<i32>,
+    approvers: HashSet<String>,
     #[serde(rename = "f")]
     files: Vec<FileMap>,
 }
@@ -158,7 +160,7 @@ struct ApprovedSourceRequestSummary {
     #[serde(rename = "p")]
     project_id: String,
     #[serde(rename = "u")]
-    user_id: i32,
+    user_id: String,
     #[serde(rename = "t")]
     title: String,
 }
@@ -194,13 +196,13 @@ struct CompletedSourceRequest {
     #[serde(rename = "p")]
     project_id: String,
     #[serde(rename = "u")]
-    user_id: i32,
+    user_id: String,
     #[serde(rename = "t")]
     title: String,
     #[serde(rename = "d")]
     description: String,
     #[serde(rename = "a")]
-    approvers: HashSet<i32>,
+    approvers: HashSet<String>,
     #[serde(rename = "f")]
     files: Vec<FileMap>,
 }
@@ -210,7 +212,7 @@ struct CompletedSourceRequestSummary {
     #[serde(rename = "p")]
     project_id: String,
     #[serde(rename = "u")]
-    user_id: i32,
+    user_id: String,
     #[serde(rename = "t")]
     title: String,
 }

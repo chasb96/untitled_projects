@@ -10,7 +10,7 @@ use crate::host::repository::threads::ThreadsRepository;
 pub struct ThreadResponse {
     pub id: i32,
     #[serde(rename = "u")]
-    pub user_id: i32,
+    pub user_id: String,
     #[serde(rename = "t")]
     pub title: String,
     #[serde(rename = "cr")]
@@ -23,7 +23,7 @@ pub struct ThreadResponse {
 pub struct CommentResponse {
     pub id: i32,
     #[serde(rename = "u")]
-    pub user_id: i32,
+    pub user_id: String,
     #[serde(rename = "c")]
     pub content: String,
     #[serde(rename = "cr")]

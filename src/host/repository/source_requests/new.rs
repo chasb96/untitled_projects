@@ -7,7 +7,7 @@ pub struct NewSourceRequest {
     #[serde(rename = "p")]
     pub project_id: String,
     #[serde(rename = "u")]
-    pub user_id: i32,
+    pub user_id: String,
     #[serde(rename = "t")]
     pub title: String,
     #[serde(rename = "d")]
@@ -21,7 +21,7 @@ pub struct NewSourceRequestSummary {
     #[serde(rename = "p")]
     pub project_id: String,
     #[serde(rename = "u")]
-    pub user_id: i32,
+    pub user_id: String,
     #[serde(rename = "t")]
     pub title: String,
 }
@@ -31,7 +31,7 @@ pub struct CreateNewSourceRequest<'a> {
     #[serde(rename = "p")]
     pub project_id: &'a str,
     #[serde(rename = "u")]
-    pub user_id: i32,
+    pub user_id: &'a str,
     #[serde(rename = "t")]
     pub title: &'a str,
     #[serde(rename = "d")]
@@ -41,7 +41,7 @@ pub struct CreateNewSourceRequest<'a> {
 }
 
 impl NewSourceRequest {
-    pub fn approve(self, approver: i32) -> ApprovedSourceRequest {
+    pub fn approve(self, approver: String) -> ApprovedSourceRequest {
         ApprovedSourceRequest {
             project_id: self.project_id,
             user_id: self.user_id,

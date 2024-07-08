@@ -49,7 +49,7 @@ pub async fn create_comment(
     let comment_id = threads_repository
         .create_comment(NewComment {
             thread_id: thread.id,
-            user_id: user.id,
+            user_id: &user.id,
             content: &request.content,
             created_at: &Utc::now().naive_utc(),
         })

@@ -6,8 +6,8 @@ pub struct ProjectResponse {
     pub id: String,
     #[prost(string, tag = "2")]
     pub name: String,
-    #[prost(int32, tag = "3")]
-    pub user_id: i32,
+    #[prost(string, tag = "3")]
+    pub user_id: String,
     #[prost(message, repeated, tag = "4")]
     pub files: Vec<ProjectFileResponse>,
 }

@@ -49,7 +49,7 @@ pub async fn create_source_request_comment(
 
     let comment = CreateSourceRequestComment {
         source_request_id,
-        user_id: user.id,
+        user_id: &user.id,
         content: &request.content,
         created_at: &Utc::now().naive_utc(),
     };

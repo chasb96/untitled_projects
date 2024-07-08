@@ -48,7 +48,7 @@ pub async fn create_project(
         id: project_id.to_owned(), 
         event_id: Alphanumeric.sample_string(&mut rand::thread_rng(), EVENT_ID_LENGTH),
         name: request.name.clone(), 
-        owner_id: user.id 
+        owner_id: user.id.clone(),
     };
 
     events_repository

@@ -55,7 +55,7 @@ pub async fn create_source_request(
 
     let source_request = CreateNewSourceRequest {
         project_id: &project.id,
-        user_id: user.id,
+        user_id: &user.id,
         title: &request.title,
         description: &request.description,
         files: request
