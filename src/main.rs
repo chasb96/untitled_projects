@@ -1,4 +1,4 @@
-use projects::{self, host::router};
+use projects::{self, router};
 
 use std::{env, error::Error};
 use axum::serve;
