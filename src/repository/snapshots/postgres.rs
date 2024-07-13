@@ -3,38 +3,9 @@ use sqlx::Row;
 
 use crate::{events::Snapshot, repository::{error::QueryError, postgres::PostgresDatabase}};
 
-use super::period::Period;
-use super::ranking::Ranking;
 use super::SnapshotsRepository;
 
 impl SnapshotsRepository for PostgresDatabase {
-    async fn list(&self, ranking: impl Into<Ranking>, period: impl Into<Period>, limit: i32) -> Result<Vec<Snapshot>, QueryError> {
-        let ranking: Ranking =  ranking.into();
-        let period: Period = period.into();
-        
-        let query = format!(r#"
-            SELECT content
-            FROM project_snapshots ps
-                LEFT JOIN project_metrics pm
-                    ON ps.project_id = pm.project_id
-            WHERE {}
-            ORDER BY {}
-            LIMIT $1
-        "#, period.as_where_clause(), ranking.as_ordering_clause());
-
-        let mut conn = self.connection_pool
-            .get()
-            .await?;
-
-        sqlx::query(&query)
-            .bind(limit)
-            .map(|row: PgRow| row.get("content"))
-            .map(|content: Json<Snapshot>| content.0)
-            .fetch_all(conn.as_mut())
-            .await
-            .map_err(QueryError::from)
-    }
-
     async fn create(&self, project_id: &str, version: &str, snapshot: impl Into<Snapshot>) -> Result<(), QueryError> {
         const INSERT_QUERY: &'static str = r#"
             INSERT INTO project_snapshots (project_id, version, content)

@@ -3,7 +3,7 @@ use redis::AsyncCommands;
 
 use crate::{events::Snapshot, repository::{error::QueryError, redis::RedisCache}};
 
-use super::{Period, Ranking, SnapshotsRepository};
+use super::SnapshotsRepository;
 
 pub struct SnapshotsCachingRepository<T> {
     cache: RedisCache,
@@ -14,12 +14,6 @@ impl<T> SnapshotsRepository for SnapshotsCachingRepository<T>
 where
     T: SnapshotsRepository,
 {
-    async fn list(&self, ranking: impl Into<Ranking>, period: impl Into<Period>, limit: i32) -> Result<Vec<Snapshot>, QueryError> {
-        self.repository
-            .list(ranking, period, limit)
-            .await
-    }
-
     async fn create(&self, project_id: &str, version: &str, snapshot: impl Into<Snapshot>) -> Result<(), QueryError> {
         self.repository
             .create(project_id, version, snapshot)

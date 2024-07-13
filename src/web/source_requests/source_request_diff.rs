@@ -29,10 +29,10 @@ pub struct DiffItem {
 pub async fn source_request_diff(
     snapshots_repository: SnapshotsRepositoryExtractor,
     source_request_repository: SourceRequestsRepositoryExtractor,
-    Path((project_id, source_request_id)): Path<(String, i32)>,
+    Path((project_id, source_request_id)): Path<(String, String)>,
 ) -> ApiResult<impl IntoResponse> {
     let source_request = source_request_repository
-        .get_by_id(source_request_id)
+        .get_by_id(&source_request_id)
         .await
         .or_internal_server_error()?
         .or_bad_request()?;

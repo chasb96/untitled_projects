@@ -11,7 +11,7 @@ pub struct SourceRequestComment {
 }
 
 pub struct CreateSourceRequestComment<'a> {
-    pub source_request_id: i32,
+    pub source_request_id: &'a str,
     pub user_id: &'a str,
     pub content: &'a str,
     pub created_at: &'a chrono::NaiveDateTime,
@@ -20,7 +20,7 @@ pub struct CreateSourceRequestComment<'a> {
 pub trait SourceRequestCommentRepository {
     async fn create<'a>(&self, source_request_comment: CreateSourceRequestComment<'a>) -> Result<i32, QueryError>;
 
-    async fn list(&self, source_request_id: i32) -> Result<Vec<SourceRequestComment>, QueryError>;
+    async fn list<'a>(&self, source_request_id: &'a str) -> Result<Vec<SourceRequestComment>, QueryError>;
 }
 
 pub enum SourceRequestCommentRepositoryOption {
@@ -34,7 +34,7 @@ impl SourceRequestCommentRepository for SourceRequestCommentRepositoryOption {
         }
     }
 
-    async fn list(&self, source_request_id: i32) -> Result<Vec<SourceRequestComment>, QueryError> {
+    async fn list<'a>(&self, source_request_id: &'a str) -> Result<Vec<SourceRequestComment>, QueryError> {
         match self {
             SourceRequestCommentRepositoryOption::Postgres(pg) => pg.list(source_request_id).await,
         }

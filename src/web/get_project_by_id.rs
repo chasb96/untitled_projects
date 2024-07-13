@@ -1,4 +1,4 @@
-use auth::client::axum::extractors::{Authenticate, ClaimsUser};
+use auth_client::axum::extractors::{Authenticate, ClaimsUser};
 use axum::{extract::{Path, Query}, http::{HeaderMap, StatusCode}, response::IntoResponse};
 use json_or_protobuf::JsonOrProtobuf;
 use or_status_code::{OrInternalServerError, OrStatusCode};

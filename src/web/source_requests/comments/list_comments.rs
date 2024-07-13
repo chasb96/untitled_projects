@@ -28,10 +28,10 @@ pub struct CommentResponse {
 pub async fn list_source_request_comments(
     source_request_repository: SourceRequestsRepositoryExtractor,
     comments_repository: SourceRequestCommentsRepositoryExtractor,
-    Path((project_id, source_request_id)): Path<(String, i32)>,
+    Path((project_id, source_request_id)): Path<(String, String)>,
 ) -> ApiResult<impl IntoResponse> {
     let source_request = source_request_repository
-        .get_by_id(source_request_id)
+        .get_by_id(&source_request_id)
         .await
         .or_internal_server_error()?
         .or_not_found()?;
@@ -41,7 +41,7 @@ pub async fn list_source_request_comments(
     }
 
     let comments = comments_repository
-        .list(source_request_id)
+        .list(&source_request_id)
         .await
         .or_internal_server_error()?;
 

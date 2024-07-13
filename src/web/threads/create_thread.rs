@@ -1,4 +1,4 @@
-use auth::client::axum::extractors::{Authenticate, ClaimsUser};
+use auth_client::axum::extractors::{Authenticate, ClaimsUser};
 use axum::{extract::Path, response::IntoResponse, Json};
 use chrono::Utc;
 use or_status_code::OrInternalServerError;

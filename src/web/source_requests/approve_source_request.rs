@@ -1,4 +1,4 @@
-use auth::client::axum::extractors::{Authenticate, ClaimsUser};
+use auth_client::axum::extractors::{Authenticate, ClaimsUser};
 use axum::{extract::Path, response::IntoResponse};
 use or_status_code::{OrInternalServerError, OrNotFound};
 use axum::http::StatusCode;
@@ -11,7 +11,7 @@ pub async fn approve_source_request(
     Authenticate(user): Authenticate<ClaimsUser>,
     snapshots_repository: SnapshotsRepositoryExtractor,
     source_request_repository: SourceRequestsRepositoryExtractor,
-    Path((project_id, source_request_id)): Path<(String, i32)>,
+    Path((project_id, source_request_id)): Path<(String, String)>,
 ) -> ApiResult<impl IntoResponse> {
     let project = snapshots_repository
         .get_by_id(&project_id, "latest")
@@ -24,7 +24,7 @@ pub async fn approve_source_request(
     }
 
     let source_request = source_request_repository
-        .get_approvable(source_request_id)
+        .get_approvable(&source_request_id)
         .await
         .or_internal_server_error()?
         .or_not_found()?;
@@ -32,7 +32,7 @@ pub async fn approve_source_request(
     let approved = source_request.approve(user.id);
 
     source_request_repository
-        .update(source_request_id, approved)
+        .update(&source_request_id, approved)
         .await
         .or_internal_server_error()?;
 

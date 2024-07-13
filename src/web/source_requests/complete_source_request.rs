@@ -1,4 +1,4 @@
-use auth::client::axum::extractors::{Authenticate, ClaimsUser};
+use auth_client::axum::extractors::{Authenticate, ClaimsUser};
 use axum::{extract::Path, response::IntoResponse};
 use or_status_code::{OrInternalServerError, OrNotFound};
 use axum::http::StatusCode;
@@ -14,7 +14,7 @@ pub async fn complete_source_request(
     source_request_repository: SourceRequestsRepositoryExtractor,
     events_repository: events_repository::EventsRepositoryExtractor,
     message_queue: MessageQueueExtractor,
-    Path((project_id, source_request_id)): Path<(String, i32)>,
+    Path((project_id, source_request_id)): Path<(String, String)>,
 ) -> ApiResult<impl IntoResponse> {
     let mut project = snapshots_repository
         .get_by_id(&project_id, "latest")
@@ -27,7 +27,7 @@ pub async fn complete_source_request(
     }
 
     let source_request = source_request_repository
-        .get_completable(source_request_id)
+        .get_completable(&source_request_id)
         .await
         .or_internal_server_error()?
         .or_not_found()?;
@@ -35,7 +35,7 @@ pub async fn complete_source_request(
     let completed = source_request.complete();
 
     source_request_repository
-        .update(source_request_id, completed.clone())
+        .update(&source_request_id, completed.clone())
         .await
         .or_internal_server_error()?;
 

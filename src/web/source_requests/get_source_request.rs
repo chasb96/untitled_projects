@@ -13,7 +13,7 @@ use super::SourceRequest;
 pub async fn get_source_request(
     snapshots_repository: SnapshotsRepositoryExtractor,
     source_request_repository: SourceRequestsRepositoryExtractor,
-    Path((project_id, source_request_id)): Path<(String, i32)>,
+    Path((project_id, source_request_id)): Path<(String, String)>,
 ) -> ApiResult<impl IntoResponse> {
     _ = snapshots_repository
         .get_by_id(&project_id, "latest")
@@ -22,7 +22,7 @@ pub async fn get_source_request(
         .or_not_found()?;
 
     let source_request = source_request_repository
-        .get_by_id(source_request_id)
+        .get_by_id(&source_request_id)
         .await
         .or_internal_server_error()?
         .or_not_found()?;

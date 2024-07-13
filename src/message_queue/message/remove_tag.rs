@@ -1,6 +1,8 @@
-use crate::repository::{search::{SearchRepository, SearchRepositoryOption}, tags::{TagsRepository, TagsRepositoryOption}};
+use search_client::SearchClient;
 
-use super::{Message, Queueable};
+use crate::repository::tags::{TagsRepository, TagsRepositoryOption};
+
+use super::{error::HandleError, Message, Queueable};
 
 pub struct RemoveTag {
     pub project_id: String,
@@ -8,15 +10,15 @@ pub struct RemoveTag {
 }
 
 impl Queueable for RemoveTag {
-    async fn handle(self) -> Result<(), super::error::HandleError> {
+    async fn handle(self) -> Result<(), HandleError> {
         let tags_repository = TagsRepositoryOption::default();
         
         tags_repository
             .delete(&self.project_id, &self.tag)
             .await?;
 
-        SearchRepositoryOption::default()
-            .delete(&self.project_id, &self.tag)
+        SearchClient::default()
+            .delete_project_value(&self.project_id, &self.tag)
             .await?;
 
         Ok(())

@@ -1,4 +1,4 @@
-use auth::client::axum::extractors::{Authenticate, ClaimsUser};
+use auth_client::axum::extractors::{Authenticate, ClaimsUser};
 use axum::{extract::Path, response::IntoResponse, Json};
 use axum::http::StatusCode;
 use chrono::Utc;

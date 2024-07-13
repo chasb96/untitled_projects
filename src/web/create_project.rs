@@ -1,4 +1,4 @@
-use auth::client::axum::extractors::{Authenticate, ClaimsUser};
+use auth_client::axum::extractors::{Authenticate, ClaimsUser};
 use axum::response::IntoResponse;
 use axum::{http::StatusCode, Json};
 use or_status_code::OrInternalServerError;

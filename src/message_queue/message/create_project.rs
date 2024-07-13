@@ -1,4 +1,4 @@
-use crate::repository::search::{SearchRepository, SearchRepositoryOption};
+use search_client::{CreateProjectRequest, SearchClient};
 
 use super::{error::HandleError, Message, Queueable};
 
@@ -9,8 +9,12 @@ pub struct CreateProject {
 
 impl Queueable for CreateProject {
     async fn handle(self) -> Result<(), HandleError> {
-        SearchRepositoryOption::default()
-            .create(&self.project_id, &self.name, &self.name)
+        SearchClient::default()
+            .create_project(CreateProjectRequest {
+                project_id: self.project_id,
+                project_name: self.name.clone(),
+                value: self.name,
+            })
             .await?;
 
         Ok(())

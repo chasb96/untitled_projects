@@ -7,7 +7,7 @@ use crate::repository::{error::QueryError, postgres::PostgresDatabase};
 use super::{Approvable, Completable, CreateSourceRequest, SourceRequest, SourceRequestRepository, SourceRequestSummary};
 
 impl SourceRequestRepository for PostgresDatabase {
-    async fn get_by_id(&self, id: i32) -> Result<Option<SourceRequest>, QueryError> {
+    async fn get_by_id<'a>(&self, id: &'a str) -> Result<Option<SourceRequest>, QueryError> {
         const GET_BY_ID_QUERY: &'static str = r#"
             SELECT content
             FROM project_source_requests
@@ -29,7 +29,7 @@ impl SourceRequestRepository for PostgresDatabase {
         Ok(source_request)
     }
 
-    async fn get_approvable(&self, id: i32) -> Result<Option<Approvable>, QueryError> {
+    async fn get_approvable<'a>(&self, id: &'a str) -> Result<Option<Approvable>, QueryError> {
         const GET_APPROVABLE_QUERY: &'static str = r#"
             SELECT content
             FROM project_source_requests
@@ -51,7 +51,7 @@ impl SourceRequestRepository for PostgresDatabase {
         Ok(source_request)
     }
 
-    async fn get_completable(&self, id: i32) -> Result<Option<Completable>, QueryError> {
+    async fn get_completable<'a>(&self, id: &'a str) -> Result<Option<Completable>, QueryError> {
         const GET_COMPLETABLE_QUERY: &'static str = r#"
             SELECT content
             FROM project_source_requests
@@ -73,13 +73,12 @@ impl SourceRequestRepository for PostgresDatabase {
         Ok(source_request)
     }
 
-    async fn create<'a>(&self, source_request: impl Into<CreateSourceRequest<'a>>) -> Result<i32, QueryError> {
+    async fn create<'a>(&self, id: &'a str, source_request: impl Into<CreateSourceRequest<'a>>) -> Result<(), QueryError> {
         const CREATE_QUERY: &'static str = r#"
             INSERT INTO project_source_requests 
-                (project_id, user_id, state, content)
+                (id, project_id, user_id, state, content)
             VALUES 
-                ($1, $2, $3, $4)
-            RETURNING id
+                ($1, $2, $3, $4. $5)
         "#;
 
         let mut conn = self.connection_pool
@@ -89,17 +88,18 @@ impl SourceRequestRepository for PostgresDatabase {
         let source_request = source_request.into();
 
         sqlx::query(CREATE_QUERY)
+            .bind(id)
             .bind(&source_request.project_id())
             .bind(&source_request.user_id())
             .bind(source_request.state_i16())
             .bind(Json::from(&source_request))
-            .fetch_one(conn.as_mut())
+            .execute(conn.as_mut())
             .await
-            .map(|row| row.get("id"))
+            .map(|_| ())
             .map_err(QueryError::from)
     }
 
-    async fn update(&self, id: i32, source_request: impl Into<SourceRequest>) -> Result<(), QueryError> {
+    async fn update<'a>(&self, id: &'a str, source_request: impl Into<SourceRequest>) -> Result<(), QueryError> {
         const UPDATE_QUERY: &'static str = r#"
             UPDATE project_source_requests
             SET user_id = $2, state = $3, content = $4
@@ -124,7 +124,7 @@ impl SourceRequestRepository for PostgresDatabase {
         Ok(())
     }
 
-    async fn list_by_project_id(&self, project_id: &str) -> Result<Vec<(i32, SourceRequestSummary)>, QueryError> {
+    async fn list_by_project_id(&self, project_id: &str) -> Result<Vec<(String, SourceRequestSummary)>, QueryError> {
         const LIST_BY_PROJECT_ID_QUERY: &'static str = r#"
             SELECT id, content
             FROM project_source_requests
@@ -139,7 +139,7 @@ impl SourceRequestRepository for PostgresDatabase {
         let mut source_request_stream = sqlx::query(LIST_BY_PROJECT_ID_QUERY)
             .bind(project_id)
             .map(|row: PgRow| (row.get("id"), row.get("content")))
-            .map(|content: (i32, Json<SourceRequestSummary>)| (content.0, content.1.0))
+            .map(|content: (String, Json<SourceRequestSummary>)| (content.0, content.1.0))
             .fetch(conn.as_mut());
 
         let mut source_requests = Vec::new();
@@ -151,7 +151,7 @@ impl SourceRequestRepository for PostgresDatabase {
         Ok(source_requests)
     }
 
-    async fn delete(&self, id: i32) -> Result<(), QueryError> {
+    async fn delete<'a>(&self, id: &'a str) -> Result<(), QueryError> {
         const DELETE_QUERY: &'static str = r#"
             DELETE FROM project_source_requests
             WHERE id = $1

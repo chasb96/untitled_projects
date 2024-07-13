@@ -1,4 +1,4 @@
-use auth::client::axum::extractors::{Authenticate, ClaimsUser};
+use auth_client::axum::extractors::{Authenticate, ClaimsUser};
 use axum::{extract::Path, response::IntoResponse, Json};
 use chrono::Utc;
 use or_status_code::{OrInternalServerError, OrNotFound};
@@ -34,11 +34,11 @@ pub async fn create_source_request_comment(
     Authenticate(user): Authenticate<ClaimsUser>,
     source_request_repository: SourceRequestsRepositoryExtractor,
     comments_repository: SourceRequestCommentsRepositoryExtractor,
-    Path((project_id, source_request_id)): Path<(String, i32)>,
+    Path((project_id, source_request_id)): Path<(String, String)>,
     Validated(Json(request)): Validated<Json<CreateCommentRequest>>,
 ) -> ApiResult<impl IntoResponse> {
     let source_request = source_request_repository
-        .get_by_id(source_request_id)
+        .get_by_id(&source_request_id)
         .await
         .or_internal_server_error()?
         .or_not_found()?;
@@ -48,7 +48,7 @@ pub async fn create_source_request_comment(
     }
 
     let comment = CreateSourceRequestComment {
-        source_request_id,
+        source_request_id: &source_request_id,
         user_id: &user.id,
         content: &request.content,
         created_at: &Utc::now().naive_utc(),

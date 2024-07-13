@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: projects-mongo
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: projects-mongo
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: projects-mongo
+    spec:
+      containers:
+      - name: projects-mongo
+        image: mongo:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 27017
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: projects-mongo-credentials
+              key: username
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: projects-mongo-credentials
+              key: password
+        volumeMounts:
+        - name: projects-mongo
+          mountPath: /data/db
+      volumes:
+        - name: projects-mongo
+          persistentVolumeClaim:
+            claimName: projects-mongo-volume-claim

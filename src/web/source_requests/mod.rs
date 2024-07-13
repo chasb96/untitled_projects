@@ -28,7 +28,7 @@ struct ListSourceRequests {
 #[derive(Serialize)]
 struct ListSourceRequestItem {
     #[serde(rename = "id")]
-    pub id: i32,
+    pub id: String,
     #[serde(rename = "sr")]
     pub source_request: SourceRequestSummary,
 }

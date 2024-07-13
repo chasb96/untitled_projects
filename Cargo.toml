@@ -19,12 +19,13 @@ sqlx = { version = "0.7.3", features = [ "runtime-tokio", "tls-native-tls", "pos
 chrono = "0.4.38"
 deadpool = { version = "0.12.0", features = ["managed"] }
 rand = "0.8.5"
-reqwest = "0.12.4"
 async-channel = "2.3.1"
-auth = { git = "https://github.com/chasb96/untitled_auth", default-features = false, features = ["client"] }
+auth_client = { git = "https://github.com/chasb96/untitled_auth_client", default-features = false }
 users_client = { git = "https://github.com/chasb96/untitled_users_client", default-features = false }
+search_client = { git = "https://github.com/chasb96/untitled_search_client", default-features = false }
 json_or_protobuf = { git = "https://github.com/chasb96/json_or_protobuf" }
 or_status_code = { git = "https://github.com/chasb96/or_status_code" }
 log_unwrap = { git = "https://github.com/chasb96/log_unwrap" }
 log_layer = { git = "https://github.com/chasb96/log_layer" }
 redis = { version = "0.25.4", features = ["async-std-comp", "aio", "ahash", "r2d2"] }
+mongodb = "3.0.0"

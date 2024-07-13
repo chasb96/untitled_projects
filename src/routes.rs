@@ -8,9 +8,7 @@ pub trait ProjectsRouter {
 
 impl ProjectsRouter for Router {
     fn register_projects_routes(self) -> Self {
-        self.route("/projects", get(list_projects))
-            .route("/projects", post(create_project))
-            .route("/projects/search", get(search_projects))
+        self.route("/projects", post(create_project))
             .route("/projects/:project_id", get(get_project_by_id))
             .route("/projects/:project_id", put(event))
             .route("/projects/:project_id/tags", get(list_tags))

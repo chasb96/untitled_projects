@@ -1,4 +1,6 @@
-use crate::repository::{search::{SearchRepository, SearchRepositoryOption}, snapshots::{SnapshotsRepository, SnapshotsRepositoryOption}, tags::{TagsRepository, TagsRepositoryOption}};
+use search_client::{CreateProjectRequest, SearchClient};
+
+use crate::repository::{snapshots::{SnapshotsRepository, SnapshotsRepositoryOption}, tags::{TagsRepository, TagsRepositoryOption}};
 
 use super::{error::HandleError, Message, Queueable};
 
@@ -26,8 +28,12 @@ impl Queueable for CreateTag {
                 .await?;
         }
 
-        SearchRepositoryOption::default()
-            .create(&project.id, &project.name, &self.tag)
+        SearchClient::default()
+            .create_project(CreateProjectRequest {
+                project_id: project.id.clone(),
+                project_name: project.name.clone(),
+                value: self.tag.clone(),
+            })
             .await?;
 
         Ok(())

@@ -1,6 +1,7 @@
-use auth::client::axum::extractors::{Authenticate, ClaimsUser};
+use auth_client::axum::extractors::{Authenticate, ClaimsUser};
 use axum::{extract::Path, response::IntoResponse, Json};
 use or_status_code::{OrInternalServerError, OrNotFound};
+use rand::distributions::{Alphanumeric, DistString};
 use serde::{Deserialize, Serialize};
 
 use crate::{axum::extractors::{snapshots_repository::SnapshotsRepositoryExtractor, source_request_repository::SourceRequestsRepositoryExtractor, validate::Validated}, repository::source_requests::{CreateNewSourceRequest, NewFileMap}, web::{validate::{Validate, ValidationError}, ApiResult}};
@@ -37,7 +38,7 @@ impl Validate for CreateSourceRequestRequest {
 
 #[derive(Serialize)]
 pub struct CreateSourceRequestResponse {
-    pub id: i32,
+    pub id: String,
 }
 
 pub async fn create_source_request(
@@ -52,6 +53,8 @@ pub async fn create_source_request(
         .await
         .or_internal_server_error()?
         .or_not_found()?;
+
+    let source_request_id = Alphanumeric.sample_string(&mut rand::thread_rng(), 16);
 
     let source_request = CreateNewSourceRequest {
         project_id: &project.id,
@@ -68,8 +71,8 @@ pub async fn create_source_request(
             .collect(),
     };
 
-    let source_request_id = source_request_repository
-        .create(source_request)
+    source_request_repository
+        .create(&source_request_id, source_request)
         .await
         .or_internal_server_error()?;
 

@@ -28,7 +28,7 @@ impl SourceRequestCommentRepository for PostgresDatabase {
             .map_err(QueryError::from)
     }
 
-    async fn list(&self, source_request_id: i32) -> Result<Vec<SourceRequestComment>, QueryError> {
+    async fn list<'a>(&self, source_request_id: &'a str) -> Result<Vec<SourceRequestComment>, QueryError> {
         const LIST_QUERY: &'static str = r#"
             SELECT id, source_request_id, user_id, content, created_at
             FROM source_request_comments
