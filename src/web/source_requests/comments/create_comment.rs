@@ -1,6 +1,5 @@
 use auth_client::axum::extractors::{Authenticate, ClaimsUser};
 use axum::{extract::Path, response::IntoResponse, Json};
-use chrono::Utc;
 use or_status_code::{OrInternalServerError, OrNotFound};
 use serde::{Deserialize, Serialize};
 use axum::http::StatusCode;
@@ -51,7 +50,6 @@ pub async fn create_source_request_comment(
         source_request_id: &source_request_id,
         user_id: &user.id,
         content: &request.content,
-        created_at: &Utc::now().naive_utc(),
     };
 
     let comment_id = comments_repository

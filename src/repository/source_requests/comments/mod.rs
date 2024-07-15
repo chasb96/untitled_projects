@@ -7,14 +7,12 @@ pub struct SourceRequestComment {
     pub source_request_id: i32,
     pub user_id: String,
     pub content: String,
-    pub created_at: chrono::NaiveDateTime,
 }
 
 pub struct CreateSourceRequestComment<'a> {
     pub source_request_id: &'a str,
     pub user_id: &'a str,
     pub content: &'a str,
-    pub created_at: &'a chrono::NaiveDateTime,
 }
 
 pub trait SourceRequestCommentRepository {

@@ -1,4 +1,5 @@
 use mongodb::bson::{self, doc};
+use serde::Deserialize;
 
 use crate::{events::Snapshot, repository::{error::QueryError, mongo::MongoDatabase}};
 
@@ -28,13 +29,19 @@ impl SnapshotsRepository for MongoDatabase {
             .get()
             .await?;
 
-        conn.collection::<Snapshot>("snapshots")
+        #[derive(Deserialize)]
+        struct Model {
+            snapshot: Snapshot,
+        }
+
+        conn.collection::<Model>("snapshots")
             .find_one(doc! {
                 "project_id": project_id,
                 "version": version,
             })
             .projection(doc! { "snapshot": 1, })
             .await
+            .map(|result| result.map(|model| model.snapshot))
             .map_err(QueryError::from)
     }
 

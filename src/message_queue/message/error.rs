@@ -7,6 +7,7 @@ pub enum HandleError {
     QueryError(QueryError),
     UserClientError(users_client::Error),
     SearchClientError(search_client::Error),
+    MetricsClientError(metrics_client::Error),
     NotFoundError(String),
 }
 
@@ -20,6 +21,7 @@ impl Display for HandleError {
             Self::QueryError(e) => write!(f, "QueryError({})", e),
             Self::UserClientError(e) => write!(f, "UserClientError({})", e),
             Self::SearchClientError(e) => write!(f, "SearchClientError({})", e),
+            Self::MetricsClientError(e) => write!(f, "MetricsClientError({})", e),
             Self::NotFoundError(e) => write!(f, "NotFoundError({})", e),
         }
     }
@@ -40,5 +42,11 @@ impl From<users_client::Error> for HandleError {
 impl From<search_client::Error> for HandleError {
     fn from(value: search_client::Error) -> Self {
         HandleError::SearchClientError(value)
+    }
+}
+
+impl From<metrics_client::Error> for HandleError {
+    fn from(value: metrics_client::Error) -> Self {
+        HandleError::MetricsClientError(value)
     }
 }

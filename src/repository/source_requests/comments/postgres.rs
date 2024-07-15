@@ -8,8 +8,8 @@ use super::{SourceRequestComment, SourceRequestCommentRepository};
 impl SourceRequestCommentRepository for PostgresDatabase {
     async fn create<'a>(&self, source_request_comment: super::CreateSourceRequestComment<'a>) -> Result<i32, QueryError> {
         const CREATE_QUERY: &'static str = r#"
-            INSERT INTO source_request_comments (source_request_id, user_id, content, created_at)
-            VALUES ($1, $2, $3, $4)
+            INSERT INTO source_request_comments (source_request_id, user_id, content)
+            VALUES ($1, $2, $3)
             RETURNING id
         "#;
 
@@ -21,7 +21,6 @@ impl SourceRequestCommentRepository for PostgresDatabase {
             .bind(source_request_comment.source_request_id)
             .bind(source_request_comment.user_id)
             .bind(source_request_comment.content)
-            .bind(source_request_comment.created_at)
             .map(|row: PgRow| row.get("id"))
             .fetch_one(conn.as_mut())
             .await
@@ -46,7 +45,6 @@ impl SourceRequestCommentRepository for PostgresDatabase {
                 source_request_id: row.get("source_request_id"),
                 user_id: row.get("user_id"),
                 content: row.get("content"),
-                created_at: row.get("created_at"),
             })
             .fetch_all(conn.as_mut())
             .await

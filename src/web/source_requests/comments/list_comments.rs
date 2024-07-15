@@ -21,8 +21,6 @@ pub struct CommentResponse {
     user_id: String,
     #[serde(rename = "c")]
     content: String,
-    #[serde(rename = "cr")]
-    created_at: String,
 }
 
 pub async fn list_source_request_comments(
@@ -52,7 +50,6 @@ pub async fn list_source_request_comments(
                 id: comment.id,
                 user_id: comment.user_id,
                 content: comment.content,
-                created_at: comment.created_at.to_string(),
             })
             .collect(),
     };

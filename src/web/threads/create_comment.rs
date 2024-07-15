@@ -1,8 +1,8 @@
 use auth_client::axum::extractors::{Authenticate, ClaimsUser};
 use axum::{extract::Path, response::IntoResponse, Json};
 use axum::http::StatusCode;
-use chrono::Utc;
 use or_status_code::OrInternalServerError;
+use rand::distributions::{Alphanumeric, DistString};
 use serde::{Deserialize, Serialize};
 
 use crate::{axum::extractors::{threads_repository::ThreadsRepositoryExtractor, validate::Validated}, repository::threads::NewComment, web::{validate::{Validate, ValidationError}, ApiResult}};
@@ -26,17 +26,17 @@ impl Validate for CreateProjectRequest {
 
 #[derive(Serialize)]
 pub struct CommentResponse {
-    pub id: i32,
+    pub id: String,
 }
 
 pub async fn create_comment(
     Authenticate(user): Authenticate<ClaimsUser>,
     threads_repository: ThreadsRepositoryExtractor,
-    Path((project_id, thread_id)): Path<(String, i32)>,
+    Path((project_id, thread_id)): Path<(String, String)>,
     Validated(Json(request)): Validated<Json<CreateProjectRequest>>,
 ) ->ApiResult<impl IntoResponse> {
     let thread = threads_repository
-        .get_by_id(thread_id)
+        .get_by_id(&thread_id)
         .await
         .or_internal_server_error()?;
 
@@ -46,12 +46,14 @@ pub async fn create_comment(
         Some(thread) => thread,
     };
 
-    let comment_id = threads_repository
+    let comment_id = Alphanumeric.sample_string(&mut rand::thread_rng(), 16);
+
+    threads_repository
         .create_comment(NewComment {
-            thread_id: thread.id,
+            id: &comment_id,
+            thread_id: &thread.id,
             user_id: &user.id,
             content: &request.content,
-            created_at: &Utc::now().naive_utc(),
         })
         .await
         .or_internal_server_error()?;

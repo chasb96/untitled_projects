@@ -1,7 +1,7 @@
 use auth_client::axum::extractors::{Authenticate, ClaimsUser};
 use axum::{extract::Path, response::IntoResponse, Json};
-use chrono::Utc;
 use or_status_code::OrInternalServerError;
+use rand::distributions::{Alphanumeric, DistString};
 use serde::{Deserialize, Serialize};
 
 use crate::{axum::extractors::{threads_repository::ThreadsRepositoryExtractor, validate::Validated}, repository::threads::NewThread, web::{validate::{Validate, ValidationError}, ApiResult}};
@@ -26,7 +26,7 @@ impl Validate for CreateThreadRequest {
 
 #[derive(Serialize)]
 pub struct CreateThreadResponse {
-    pub id: i32,
+    pub id: String,
 }
 
 pub async fn create_thread(
@@ -35,12 +35,14 @@ pub async fn create_thread(
     Path(project_id): Path<String>,
     Validated(Json(request)): Validated<Json<CreateThreadRequest>>,
 ) -> ApiResult<impl IntoResponse> {
-    let thread_id = threads_repository
+    let thread_id = Alphanumeric.sample_string(&mut rand::thread_rng(), 16);
+
+    threads_repository
         .create(NewThread {
+            id: &thread_id,
             project_id: &project_id,
             user_id: &user.id,
             title: &request.title,
-            created_at: &Utc::now().naive_utc(),
         })
         .await
         .or_internal_server_error()?;

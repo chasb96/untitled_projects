@@ -6,11 +6,10 @@ use crate::repository::{error::QueryError, postgres::PostgresDatabase, threads::
 use super::{Comment, NewComment, NewThread, ThreadsRepository};
 
 impl ThreadsRepository for PostgresDatabase {
-    async fn create<'a>(&self, threat: NewThread<'a>) -> Result<i32, QueryError> {
+    async fn create<'a>(&self, thread: NewThread<'a>) -> Result<(), QueryError> {
         const INSERT_QUERY: &'static str = r#"
-            INSERT INTO project_threads (project_id, user_id, title, created_at)
+            INSERT INTO project_threads (id, project_id, user_id, title)
             VALUES ($1, $2, $3, $4)
-            RETURNING id
         "#;
 
         let mut conn = self.connection_pool
@@ -18,10 +17,10 @@ impl ThreadsRepository for PostgresDatabase {
             .await?;
 
         sqlx::query(INSERT_QUERY)
-            .bind(threat.project_id)
-            .bind(threat.user_id)
-            .bind(threat.title)
-            .bind(threat.created_at)
+            .bind(thread.id)
+            .bind(thread.project_id)
+            .bind(thread.user_id)
+            .bind(thread.title)
             .fetch_one(conn.as_mut())
             .await
             .map(|row| row.get("id"))
@@ -30,7 +29,7 @@ impl ThreadsRepository for PostgresDatabase {
 
     async fn list(&self, project_id: &str) -> Result<Vec<Thread>, QueryError> {
         const LIST_QUERY: &'static str = r#"
-            SELECT id, project_id, user_id, title, created_at
+            SELECT id, project_id, user_id, title
             FROM project_threads
             WHERE project_id = $1
         "#;
@@ -46,19 +45,17 @@ impl ThreadsRepository for PostgresDatabase {
                 project_id: row.get("project_id"),
                 user_id: row.get("user_id"),
                 title: row.get("title"),
-                created_at: row.get("created_at"),
             })
             .fetch_all(conn.as_mut())
             .await
             .map_err(QueryError::from)
     }
 
-    async fn get_by_id(&self, id: i32) -> Result<Option<Thread>, QueryError> {
+    async fn get_by_id<'a>(&self, id: &'a str) -> Result<Option<Thread>, QueryError> {
         const THREAD_QUERY: &'static str = r#"
-            SELECT id, project_id, user_id, title, created_at
+            SELECT id, project_id, user_id, title
             FROM project_threads
             WHERE id = $1
-            ORDER BY created_at DESC
         "#;
 
         let mut conn = self.connection_pool
@@ -72,18 +69,16 @@ impl ThreadsRepository for PostgresDatabase {
                 project_id: row.get("project_id"),
                 user_id: row.get("user_id"),
                 title: row.get("title"),
-                created_at: row.get("created_at"),
             })
             .fetch_optional(conn.as_mut())
             .await
             .map_err(QueryError::from)
     }   
 
-    async fn create_comment<'a>(&self, comment: NewComment<'a>) -> Result<i32, QueryError> {
+    async fn create_comment<'a>(&self, comment: NewComment<'a>) -> Result<(), QueryError> {
         const INSERT_QUERY: &'static str = r#"
-            INSERT INTO project_thread_comments (thread_id, user_id, content, created_at)
-            VALUES ($1, $2, $3, $4)
-            RETURNING id
+            INSERT INTO project_thread_comments (id, thread_id, user_id, content)
+            VALUES ($1, $2, $3, $4, $5)
         "#;
 
         let mut conn = self.connection_pool
@@ -91,22 +86,21 @@ impl ThreadsRepository for PostgresDatabase {
             .await?;
 
         sqlx::query(INSERT_QUERY)
+            .bind(comment.id)
             .bind(comment.thread_id)
             .bind(comment.user_id)
             .bind(comment.content)
-            .bind(comment.created_at)
             .fetch_one(conn.as_mut())
             .await
             .map(|row| row.get("id"))
             .map_err(QueryError::from)
     }
 
-    async fn list_comments(&self, thread_id: i32) -> Result<Vec<Comment>, QueryError> {
+    async fn list_comments<'a>(&self, thread_id: &'a str) -> Result<Vec<Comment>, QueryError> {
         const LIST_QUERY: &'static str = r#"
             SELECT id, thread_id, user_id, content, created_at
             FROM project_thread_comments
             WHERE thread_id = $1
-            ORDER BY created_at ASC
         "#;
 
         let mut conn = self.connection_pool
@@ -120,7 +114,6 @@ impl ThreadsRepository for PostgresDatabase {
                 thread_id: row.get("thread_id"),
                 user_id: row.get("user_id"),
                 content: row.get("content"),
-                created_at: row.get("created_at"),
             })
             .fetch_all(conn.as_mut())
             .await

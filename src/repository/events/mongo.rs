@@ -1,5 +1,6 @@
 use futures::TryStreamExt;
-use mongodb::bson::{self, doc, Bson};
+use mongodb::bson::{self, doc};
+use serde::Deserialize;
 
 use crate::{events::EventKind, repository::{error::QueryError, mongo::MongoDatabase}};
 use crate::events::Event;
@@ -14,7 +15,9 @@ impl EventsRepository for MongoDatabase {
 
         let order = conn.collection::<u32>("events")
             .find(doc! { "project_id": project_id, })
-            .max(doc! { "order": 1, })
+            .sort(doc! { "order": -1 })
+            .projection(doc! { "order": 1, })
+            .limit(1)
             .await?
             .try_next()
             .await?;
@@ -38,7 +41,12 @@ impl EventsRepository for MongoDatabase {
             .get()
             .await?;
 
-        let mut cursor = conn.collection::<Bson>("events")
+        #[derive(Deserialize)]
+        struct Model {
+            event: EventKind,
+        }
+
+        let mut cursor = conn.collection::<Model>("events")
             .find(doc! { "project_id": project_id, })
             .sort(doc! { "order": 1, })
             .projection(doc! { "event": 1, })
@@ -46,10 +54,8 @@ impl EventsRepository for MongoDatabase {
 
         let mut events = Vec::new();
 
-        while let Some(event) = cursor.try_next().await? {
-            let event: EventKind = bson::from_bson(event)?;
-
-            events.push(event);
+        while let Some(model) = cursor.try_next().await? {
+            events.push(model.event);
         }
 
         Ok(events)

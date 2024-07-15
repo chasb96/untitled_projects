@@ -5,7 +5,6 @@ pub mod mongo;
 pub mod error;
 pub mod events;
 pub mod snapshots;
-pub mod metrics;
 pub mod tags;
 pub mod threads;
 pub mod redis;

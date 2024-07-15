@@ -16,13 +16,13 @@ serde = { version = "1.0.197", features = ["derive"] }
 serde_json = "1.0.114"
 prost = "0.12.4"
 sqlx = { version = "0.7.3", features = [ "runtime-tokio", "tls-native-tls", "postgres", "chrono" ] }
-chrono = "0.4.38"
 deadpool = { version = "0.12.0", features = ["managed"] }
 rand = "0.8.5"
 async-channel = "2.3.1"
 auth_client = { git = "https://github.com/chasb96/untitled_auth_client", default-features = false }
 users_client = { git = "https://github.com/chasb96/untitled_users_client", default-features = false }
 search_client = { git = "https://github.com/chasb96/untitled_search_client", default-features = false }
+metrics_client = { git = "https://github.com/chasb96/untitled_metrics_client", default-features = false }
 json_or_protobuf = { git = "https://github.com/chasb96/json_or_protobuf" }
 or_status_code = { git = "https://github.com/chasb96/or_status_code" }
 log_unwrap = { git = "https://github.com/chasb96/log_unwrap" }

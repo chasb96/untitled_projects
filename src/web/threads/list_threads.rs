@@ -13,13 +13,11 @@ pub struct ListThreadsResponse {
 
 #[derive(Serialize)]
 pub struct ThreadResponse {
-    pub id: i32,
+    pub id: String,
     #[serde(rename = "u")]
     pub user_id: String,
     #[serde(rename = "t")]
     pub title: String,
-    #[serde(rename = "cr")]
-    pub created_at: String,
 }
 
 pub async fn list_threads(
@@ -38,9 +36,6 @@ pub async fn list_threads(
                 id: thread.id,
                 user_id: thread.user_id,
                 title: thread.title,
-                created_at: thread.created_at
-                    .and_utc()
-                    .to_rfc3339(),
             })
             .collect(),
     };
