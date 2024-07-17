@@ -1,3 +1,4 @@
+use futures::TryStreamExt;
 use mongodb::bson::{self, doc};
 use serde::Deserialize;
 
@@ -6,6 +7,24 @@ use crate::{events::Snapshot, repository::{error::QueryError, mongo::MongoDataba
 use super::SnapshotsRepository;
 
 impl SnapshotsRepository for MongoDatabase {
+    async fn list(&self, project_ids: &Option<Vec<String>>) -> Result<Vec<Snapshot>, QueryError> {
+        let conn = self.connection_pool
+            .get()
+            .await?;
+
+        conn.collection::<Snapshot>("snapshots")
+            .find(match project_ids {
+                Some(project_ids) => doc! {
+                    "project_id": { "$in": project_ids },
+                },
+                None => doc! {},
+            })
+            .await?
+            .try_collect()
+            .await
+            .map_err(QueryError::from)
+    }
+
     async fn create(&self, project_id: &str, version: &str, snapshot: impl Into<Snapshot>) -> Result<(), QueryError> {
         let conn = self.connection_pool
             .get()

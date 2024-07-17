@@ -6,6 +6,26 @@ use crate::{events::Snapshot, repository::{error::QueryError, postgres::Postgres
 use super::SnapshotsRepository;
 
 impl SnapshotsRepository for PostgresDatabase {
+    async fn list(&self, project_ids: &Option<Vec<String>>) -> Result<Vec<Snapshot>, QueryError> {
+        const SNAPSHOT_QUERY: &'static str = r#"
+            SELECT content
+            FROM project_snapshots
+            WHERE project_id = UNNEST($1)
+        "#;
+
+        let mut conn = self.connection_pool
+            .get()
+            .await?;
+
+        sqlx::query(&SNAPSHOT_QUERY)
+            .bind(project_ids)
+            .map(|row: PgRow| row.get("content"))
+            .map(|content: Json<Snapshot>| content.0)
+            .fetch_all(conn.as_mut())
+            .await
+            .map_err(QueryError::from)
+    }
+
     async fn create(&self, project_id: &str, version: &str, snapshot: impl Into<Snapshot>) -> Result<(), QueryError> {
         const INSERT_QUERY: &'static str = r#"
             INSERT INTO project_snapshots (project_id, version, content)

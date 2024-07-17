@@ -14,6 +14,12 @@ impl<T> SnapshotsRepository for SnapshotsCachingRepository<T>
 where
     T: SnapshotsRepository,
 {
+    async fn list(&self, project_ids: &Option<Vec<String>>) -> Result<Vec<Snapshot>, QueryError> {
+        self.repository
+            .list(project_ids)
+            .await
+    }
+
     async fn create(&self, project_id: &str, version: &str, snapshot: impl Into<Snapshot>) -> Result<(), QueryError> {
         self.repository
             .create(project_id, version, snapshot)

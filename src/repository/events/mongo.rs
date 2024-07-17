@@ -9,6 +9,8 @@ use super::EventsRepository;
 
 impl EventsRepository for MongoDatabase {
     async fn create(&self, project_id: &str, event: impl Into<EventKind>) -> Result<(), QueryError> {
+        let event: EventKind = event.into();
+
         let conn = self.connection_pool
             .get()
             .await?;
@@ -22,8 +24,6 @@ impl EventsRepository for MongoDatabase {
             .try_next()
             .await?;
 
-        let event: EventKind = event.into();
-
         conn.collection("events")
             .insert_one(doc! {
                 "project_id": project_id,
@@ -31,9 +31,9 @@ impl EventsRepository for MongoDatabase {
                 "order": if let Some(order) = order { order + 1 } else { 0 },
                 "event": bson::to_bson(&event)?,
             })
-            .await?;
-
-        Ok(())
+            .await
+            .map(|_| ())
+            .map_err(QueryError::from)
     }
 
     async fn list(&self, project_id: &str) -> Result<Vec<EventKind>, QueryError> {
@@ -46,25 +46,26 @@ impl EventsRepository for MongoDatabase {
             event: EventKind,
         }
 
-        let mut cursor = conn.collection::<Model>("events")
+        conn.collection::<Model>("events")
             .find(doc! { "project_id": project_id, })
             .sort(doc! { "order": 1, })
             .projection(doc! { "event": 1, })
-            .await?;
-
-        let mut events = Vec::new();
-
-        while let Some(model) = cursor.try_next().await? {
-            events.push(model.event);
-        }
-
-        Ok(events)
+            .await?
+            .try_collect()
+            .await
+            .map(|models: Vec<Model>| models
+                .into_iter()
+                .map(|model| model.event)
+                .collect()
+            )
+            .map_err(QueryError::from)
     }
 
     async fn list_until(&self, project_id: &str, event_id: &str) -> Result<Vec<EventKind>, QueryError> {
         let mut found = false;
 
-        let events = self.list(project_id)
+        let events = self
+            .list(project_id)
             .await?
             .into_iter()
             .take_while(|event| match found {
