@@ -14,13 +14,25 @@ use super::ApiResult;
 #[serde(untagged)]
 pub enum ListProjectsQuery {
     ProjectIds { 
-        #[serde(rename = "pids")]
+        #[serde(rename = "pids", deserialize_with = "filter_vec_deserlialize")]
         project_ids: Vec<String> 
     },
     UserId { 
         #[serde(rename = "uid")]
         user_id: String 
     },
+}
+
+fn filter_vec_deserlialize<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let project_ids = String::deserialize(deserializer)?
+        .split(',')
+        .map(|str| str.to_string()) 
+        .collect();
+
+    Ok(project_ids)
 }
 
 #[derive(Serialize, Message)]
