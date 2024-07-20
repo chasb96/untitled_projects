@@ -8,8 +8,13 @@ use crate::events::Snapshot;
 
 use super::{error::QueryError, mongo::MongoDatabase, postgres::PostgresDatabase};
 
+pub enum ListQuery {
+    ProjectIds { project_ids: Vec<String> },
+    UserId { user_id: String },
+}
+
 pub trait SnapshotsRepository {
-    async fn list(&self, project_ids: &Option<Vec<String>>) -> Result<Vec<Snapshot>, QueryError>;
+    async fn list(&self, query: &ListQuery) -> Result<Vec<Snapshot>, QueryError>;
 
     async fn create(&self, project_id: &str, version: &str, snapshot: impl Into<Snapshot>) -> Result<(), QueryError>;
 
@@ -27,7 +32,7 @@ pub enum SnapshotsRepositoryOption {
 }
 
 impl SnapshotsRepository for SnapshotsRepositoryOption {
-    async fn list(&self, project_ids: &Option<Vec<String>>) -> Result<Vec<Snapshot>, QueryError> {
+    async fn list(&self, project_ids: &ListQuery) -> Result<Vec<Snapshot>, QueryError> {
         match self {
             Self::Postgres(pg) => pg.list(project_ids).await,
             Self::CachedPostgres(cached_pg) => cached_pg.list(project_ids).await,

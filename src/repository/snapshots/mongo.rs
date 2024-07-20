@@ -4,20 +4,18 @@ use serde::Deserialize;
 
 use crate::{events::Snapshot, repository::{error::QueryError, mongo::MongoDatabase}};
 
-use super::SnapshotsRepository;
+use super::{ListQuery, SnapshotsRepository};
 
 impl SnapshotsRepository for MongoDatabase {
-    async fn list(&self, project_ids: &Option<Vec<String>>) -> Result<Vec<Snapshot>, QueryError> {
+    async fn list(&self, query: &ListQuery) -> Result<Vec<Snapshot>, QueryError> {
         let conn = self.connection_pool
             .get()
             .await?;
 
         conn.collection::<Snapshot>("snapshots")
-            .find(match project_ids {
-                Some(project_ids) => doc! {
-                    "project_id": { "$in": project_ids },
-                },
-                None => doc! {},
+            .find(match query {
+                ListQuery::ProjectIds { project_ids } => doc! { "project_id": { "$in": project_ids } },
+                ListQuery::UserId { user_id } => doc! { "snapshot.uid": user_id },
             })
             .await?
             .try_collect()

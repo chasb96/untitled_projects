@@ -6,14 +6,21 @@ use prost::Message;
 use serde::{Deserialize, Serialize};
 
 use crate::axum::extractors::snapshots_repository::SnapshotsRepositoryExtractor;
-use crate::repository::snapshots::SnapshotsRepository;
+use crate::repository::snapshots::{ListQuery, SnapshotsRepository};
 
 use super::ApiResult;
 
 #[derive(Deserialize)]
-pub struct ListProjectsQuery {
-    #[serde(rename = "pids")]
-    project_ids: Option<Vec<String>>,
+#[serde(untagged)]
+pub enum ListProjectsQuery {
+    ProjectIds { 
+        #[serde(rename = "pids")]
+        project_ids: Vec<String> 
+    },
+    UserId { 
+        #[serde(rename = "uid")]
+        user_id: String 
+    },
 }
 
 #[derive(Serialize, Message)]
@@ -39,7 +46,7 @@ pub async fn list_projects(
     Query(query): Query<ListProjectsQuery>,
 ) -> ApiResult<impl IntoResponse> {
     let snapshots = snapshots_repository
-        .list(&query.project_ids)
+        .list(&query.into())
         .await
         .or_internal_server_error()?;
 
@@ -54,4 +61,13 @@ pub async fn list_projects(
     };
 
     Ok(JsonOrProtobuf::from_accept_header(response_body, &headers))
+}
+
+impl Into<ListQuery> for ListProjectsQuery {
+    fn into(self) -> ListQuery {
+        match self {
+            ListProjectsQuery::ProjectIds { project_ids } => ListQuery::ProjectIds { project_ids },
+            ListProjectsQuery::UserId { user_id } => ListQuery::UserId { user_id },
+        }
+    }
 }

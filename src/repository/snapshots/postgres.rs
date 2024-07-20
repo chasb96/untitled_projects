@@ -3,22 +3,28 @@ use sqlx::Row;
 
 use crate::{events::Snapshot, repository::{error::QueryError, postgres::PostgresDatabase}};
 
-use super::SnapshotsRepository;
+use super::{ListQuery, SnapshotsRepository};
 
 impl SnapshotsRepository for PostgresDatabase {
-    async fn list(&self, project_ids: &Option<Vec<String>>) -> Result<Vec<Snapshot>, QueryError> {
+    async fn list(&self, query: &ListQuery) -> Result<Vec<Snapshot>, QueryError> {
         const SNAPSHOT_QUERY: &'static str = r#"
             SELECT content
             FROM project_snapshots
-            WHERE project_id = UNNEST($1)
+            WHERE 
+                ($1 IS NULL OR project_id = UNNEST($1))
+                AND ($2 IS NULL OR content->>'uid' = $2)
         "#;
 
         let mut conn = self.connection_pool
             .get()
             .await?;
 
-        sqlx::query(&SNAPSHOT_QUERY)
-            .bind(project_ids)
+        let query = match query {
+            ListQuery::ProjectIds { project_ids } => sqlx::query(&SNAPSHOT_QUERY).bind(project_ids).bind(None::<String>),
+            ListQuery::UserId { user_id } => sqlx::query(&SNAPSHOT_QUERY).bind(None::<Vec<String>>).bind(user_id),
+        };
+
+        query
             .map(|row: PgRow| row.get("content"))
             .map(|content: Json<Snapshot>| content.0)
             .fetch_all(conn.as_mut())
