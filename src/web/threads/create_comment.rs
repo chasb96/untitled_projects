@@ -1,16 +1,17 @@
 use auth_client::axum::extractors::{Authenticate, ClaimsUser};
-use axum::{extract::Path, response::IntoResponse, Json};
+use axum::{extract::Path, response::IntoResponse};
 use axum::http::StatusCode;
+use axum_extra::protobuf::Protobuf;
 use or_status_code::OrInternalServerError;
+use prost::Message;
 use rand::distributions::{Alphanumeric, DistString};
-use serde::{Deserialize, Serialize};
 
-use crate::{axum::extractors::{threads_repository::ThreadsRepositoryExtractor, validate::Validated}, repository::threads::NewComment, web::{validate::{Validate, ValidationError}, ApiResult}};
+use crate::{axum::extractors::threads_repository::ThreadsRepositoryExtractor, repository::threads::NewComment, web::{validate::{Validate, ValidationError}, ApiResult}};
 use crate::repository::threads::ThreadsRepository;
 
-#[derive(Deserialize)]
+#[derive(Message)]
 pub struct CreateProjectRequest {
-    #[serde(rename = "c")]
+    #[prost(string, tag = "1")]
     pub content: String,
 }
 
@@ -24,8 +25,9 @@ impl Validate for CreateProjectRequest {
     }
 }
 
-#[derive(Serialize)]
+#[derive(Message)]
 pub struct CommentResponse {
+    #[prost(string, tag = "1")]
     pub id: String,
 }
 
@@ -33,7 +35,7 @@ pub async fn create_comment(
     Authenticate(user): Authenticate<ClaimsUser>,
     threads_repository: ThreadsRepositoryExtractor,
     Path((project_id, thread_id)): Path<(String, String)>,
-    Validated(Json(request)): Validated<Json<CreateProjectRequest>>,
+    Protobuf(request): Protobuf<CreateProjectRequest>,
 ) ->ApiResult<impl IntoResponse> {
     let thread = threads_repository
         .get_by_id(&thread_id)
@@ -58,7 +60,7 @@ pub async fn create_comment(
         .await
         .or_internal_server_error()?;
 
-    Ok(Json(CommentResponse {
+    Ok(Protobuf(CommentResponse {
         id: comment_id
     }))
 }

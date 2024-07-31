@@ -1,16 +1,16 @@
-use axum::Json;
 use axum::{extract::Path, response::IntoResponse};
+use axum_extra::protobuf::Protobuf;
 use or_status_code::OrInternalServerError;
-use serde::Serialize;
+use prost::Message;
 
 use crate::axum::extractors::tags_repository::TagsRepositoryExtractor;
 use crate::repository::tags::TagsRepository;
 
 use super::ApiResult;
 
-#[derive(Serialize)]
+#[derive(Message)]
 pub struct ListTagsResponse {
-    #[serde(rename = "t")]
+    #[prost(string, repeated, tag = "1")]
     tags: Vec<String>,
 }
 
@@ -23,5 +23,5 @@ pub async fn list_tags(
         .await
         .or_internal_server_error()?;
 
-    Ok(Json(ListTagsResponse { tags }))
+    Ok(Protobuf(ListTagsResponse { tags }))
 }

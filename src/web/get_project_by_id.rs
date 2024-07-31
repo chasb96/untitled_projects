@@ -1,6 +1,6 @@
 use auth_client::axum::extractors::{Authenticate, ClaimsUser};
-use axum::{extract::{Path, Query}, http::{HeaderMap, StatusCode}, response::IntoResponse};
-use json_or_protobuf::JsonOrProtobuf;
+use axum::{extract::{Path, Query}, http::StatusCode, response::IntoResponse};
+use axum_extra::protobuf::Protobuf;
 use or_status_code::{OrInternalServerError, OrStatusCode};
 use serde::Deserialize;
 
@@ -10,30 +10,23 @@ use crate::repository::snapshots::SnapshotsRepository;
 use super::ApiResult;
 
 use prost::Message;
-use serde::Serialize;
 
-#[derive(Serialize, Message)]
+#[derive(Message)]
 pub struct ProjectResponse {
-    #[serde(rename = "id")]
     #[prost(string, tag = "1")]
     pub id: String,
-    #[serde(rename = "n")]
     #[prost(string, tag = "2")]
     pub name: String,
-    #[serde(rename = "uid")]
     #[prost(string, tag = "3")]
     pub user_id: String,
-    #[serde(rename = "f")]
     #[prost(message, repeated, tag = "4")]
     pub files: Vec<ProjectFileReponse>,
 }
 
-#[derive(Serialize, Message)]
+#[derive(Message)]
 pub struct ProjectFileReponse {
-    #[serde(rename = "id")]
     #[prost(string, tag = "1")]
     pub id: String,
-    #[serde(rename = "n")]
     #[prost(string, tag = "2")]
     pub name: String,
 }
@@ -47,7 +40,6 @@ pub async fn get_project_by_id(
     Authenticate(user): Authenticate<Option<ClaimsUser>>,
     message_queue: MessageQueueExtractor,
     snapshots_repository: SnapshotsRepositoryExtractor,
-    headers: HeaderMap,
     Path(id): Path<String>,
     query: Query<GetProjectByIdQuery>
 ) -> ApiResult<impl IntoResponse> {
@@ -83,5 +75,5 @@ pub async fn get_project_by_id(
             .collect(),
     };
 
-    Ok(JsonOrProtobuf::from_accept_header(response_body, &headers))
+    Ok(Protobuf(response_body))
 }

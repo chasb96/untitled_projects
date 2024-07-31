@@ -1,46 +1,36 @@
-use auth_client::axum::extractors::{Authenticate, ClaimsUser};
 use axum::response::IntoResponse;
-use axum::{http::StatusCode, Json};
+use axum::http::StatusCode;
+use axum_extra::protobuf::Protobuf;
 use or_status_code::OrInternalServerError;
+use prost::Message;
 use rand::distributions::{Alphanumeric, DistString};
-use serde::{Deserialize, Serialize};
 
 use crate::axum::extractors::message_queue::MessageQueueExtractor;
-use crate::axum::extractors::validate::Validated;
-use crate::message_queue::{AssignProject, CreateProject, CreateSnapshot};
+use crate::message_queue::{CreateProject, CreateSnapshot};
 use crate::repository::EVENT_ID_LENGTH;
 use crate::{axum::extractors::events_repository::EventsRepositoryExtractor, events::CreateEvent};
 use crate::repository::events::EventsRepository;
 
-use super::validate::{Validate, ValidationError};
 use super::ApiResult;
 
-#[derive(Deserialize)]
+#[derive(Message)]
 pub struct CreateProjectRequest {
+    #[prost(string, tag = "1")]
     pub name: String,
+    #[prost(string, tag = "2")]
+    pub user_id: String,
 }
 
-impl Validate for CreateProjectRequest {
-    fn validate(&self) -> Result<(), ValidationError> {
-        let name_len = self.name.len();
-
-        if name_len == 0 { return Err("Name must have atleast one character".into()) }
-        if name_len > 32 { return Err("Name cannot be more than 32 characters".into()) }
-
-        Ok(())
-    }
-}
-
-#[derive(Serialize)]
+#[derive(Message)]
 pub struct CreateProjectResponse {
+    #[prost(string, tag = "1")]
     pub id: String,
 }
 
 pub async fn create_project(
-    Authenticate(user): Authenticate<ClaimsUser>,
     events_repository: EventsRepositoryExtractor,
     message_queue: MessageQueueExtractor,
-    Validated(Json(request)): Validated<Json<CreateProjectRequest>>
+    Protobuf(request): Protobuf<CreateProjectRequest>
 ) -> ApiResult<impl IntoResponse> {
     let project_id = Alphanumeric.sample_string(&mut rand::thread_rng(), 16);
 
@@ -48,7 +38,7 @@ pub async fn create_project(
         id: project_id.to_owned(), 
         event_id: Alphanumeric.sample_string(&mut rand::thread_rng(), EVENT_ID_LENGTH),
         name: request.name.clone(), 
-        owner_id: user.id.clone(),
+        owner_id: request.user_id.clone(),
     };
 
     events_repository
@@ -65,13 +55,6 @@ pub async fn create_project(
         .await;
 
     message_queue
-        .send(AssignProject {
-            user_id: user.id,
-            project_id: project_id.clone(),
-        })
-        .await;
-
-    message_queue
         .send(CreateProject {
             project_id: project_id.clone(),
             name: request.name,
@@ -80,7 +63,7 @@ pub async fn create_project(
 
     Ok((
         StatusCode::CREATED,
-        Json(CreateProjectResponse {
+        Protobuf(CreateProjectResponse {
             id: project_id,
         }),
     ))

@@ -1,28 +1,31 @@
-use axum::{extract::Path, response::IntoResponse, Json};
+use axum::{extract::Path, response::IntoResponse};
+use axum_extra::protobuf::Protobuf;
 use or_status_code::OrInternalServerError;
-use serde::Serialize;
+use prost::Message;
 use axum::http::StatusCode;
 
 use crate::{axum::extractors::threads_repository::ThreadsRepositoryExtractor, web::ApiResult};
 use crate::repository::threads::ThreadsRepository;
 
-#[derive(Serialize)]
+#[derive(Message)]
 pub struct ThreadResponse {
+    #[prost(string, tag = "1")]
     pub id: String,
-    #[serde(rename = "u")]
+    #[prost(string, tag = "2")]
     pub user_id: String,
-    #[serde(rename = "t")]
+    #[prost(string, tag = "3")]
     pub title: String,
-    #[serde(rename = "c")]
+    #[prost(message, repeated, tag = "4")]
     pub comments: Vec<CommentResponse>,
 }
 
-#[derive(Serialize)]
+#[derive(Message)]
 pub struct CommentResponse {
+    #[prost(string, tag = "1")]
     pub id: String,
-    #[serde(rename = "u")]
+    #[prost(string, tag = "2")]
     pub user_id: String,
-    #[serde(rename = "c")]
+    #[prost(string, tag = "3")]
     pub content: String,
 }
 
@@ -60,5 +63,5 @@ pub async fn get_thread_by_id(
             .collect(),
     };
 
-    Ok(Json(response))
+    Ok(Protobuf(response))
 }

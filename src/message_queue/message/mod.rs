@@ -1,13 +1,12 @@
 use self::error::HandleError;
 
-use super::{AssignProject, CreateProject, CreateSnapshot, CreateTag, ProjectViewed, RemoveTag};
+use super::{CreateProject, CreateSnapshot, CreateTag, ProjectViewed, RemoveTag};
 
 mod error;
 pub mod project_viewed;
 pub mod create_tag;
 pub mod create_snapshot;
 pub mod remove_tag;
-pub mod assign_project;
 pub mod create_project;
 
 pub enum Message {
@@ -16,7 +15,6 @@ pub enum Message {
     CreateTag(CreateTag),
     RemoveTag(RemoveTag),
     CreateSnapshot(CreateSnapshot),
-    AssignProject(AssignProject),
 }
 
 pub trait Queueable {
@@ -31,7 +29,6 @@ impl Queueable for Message {
             Message::CreateTag(m) => m.handle().await,
             Message::CreateSnapshot(m) => m.handle().await,
             Message::RemoveTag(m) => m.handle().await, 
-            Message::AssignProject(m) => m.handle().await,
         }
     }
 }

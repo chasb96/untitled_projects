@@ -1,28 +1,29 @@
 use auth_client::axum::extractors::{Authenticate, ClaimsUser};
-use axum::{extract::Path, response::IntoResponse, Json};
+use axum::{extract::Path, response::IntoResponse};
+use axum_extra::protobuf::Protobuf;
 use or_status_code::{OrInternalServerError, OrNotFound};
+use prost::Message;
 use rand::distributions::{Alphanumeric, DistString};
-use serde::{Deserialize, Serialize};
 
-use crate::{axum::extractors::{snapshots_repository::SnapshotsRepositoryExtractor, source_request_repository::SourceRequestsRepositoryExtractor, validate::Validated}, repository::source_requests::{CreateNewSourceRequest, NewFileMap}, web::{validate::{Validate, ValidationError}, ApiResult}};
+use crate::{axum::extractors::{snapshots_repository::SnapshotsRepositoryExtractor, source_request_repository::SourceRequestsRepositoryExtractor}, repository::source_requests::{CreateNewSourceRequest, NewFileMap}, web::{validate::{Validate, ValidationError}, ApiResult}};
 use crate::repository::snapshots::SnapshotsRepository;
 use crate::repository::source_requests::SourceRequestRepository;
 
-#[derive(Deserialize)]
+#[derive(Message)]
 pub struct CreateSourceRequestRequest {
-    #[serde(rename = "t")]
+    #[prost(string, tag = "1")]
     pub title: String,
-    #[serde(rename = "d")]
+    #[prost(string, tag = "2")]
     pub description: String,
-    #[serde(rename = "f")]
+    #[prost(message, repeated, tag = "3")]
     pub files: Vec<FileMap>,
 }
 
-#[derive(Deserialize)]
+#[derive(Message)]
 pub struct FileMap {
-    #[serde(rename = "p")]
+    #[prost(string, tag = "1")]
     pub path: String,
-    #[serde(rename = "f")]
+    #[prost(string, tag = "2")]
     pub file_id: String,
 }
 
@@ -36,8 +37,9 @@ impl Validate for CreateSourceRequestRequest {
     }
 }
 
-#[derive(Serialize)]
+#[derive(Message)]
 pub struct CreateSourceRequestResponse {
+    #[prost(string, tag = "1")]
     pub id: String,
 }
 
@@ -46,7 +48,7 @@ pub async fn create_source_request(
     snapshots_repository: SnapshotsRepositoryExtractor,
     source_request_repository: SourceRequestsRepositoryExtractor,
     Path(project_id): Path<String>,
-    Validated(Json(request)): Validated<Json<CreateSourceRequestRequest>>,
+    Protobuf(request): Protobuf<CreateSourceRequestRequest>,
 ) -> ApiResult<impl IntoResponse> {
     let project = snapshots_repository
         .get_by_id(&project_id, "latest")
@@ -76,7 +78,7 @@ pub async fn create_source_request(
         .await
         .or_internal_server_error()?;
 
-    Ok(Json(CreateSourceRequestResponse {
+    Ok(Protobuf(CreateSourceRequestResponse {
         id: source_request_id,
     }))
 }

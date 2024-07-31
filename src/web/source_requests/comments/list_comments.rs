@@ -1,25 +1,26 @@
-use axum::{extract::Path, response::IntoResponse, Json};
+use axum::{extract::Path, response::IntoResponse};
+use axum_extra::protobuf::Protobuf;
 use or_status_code::{OrInternalServerError, OrNotFound};
 use axum::http::StatusCode;
-use serde::Serialize;
+use prost::Message;
 
 use crate::{axum::extractors::{source_request_comments_repository::SourceRequestCommentsRepositoryExtractor, source_request_repository::SourceRequestsRepositoryExtractor}, web::ApiResult};
 use crate::repository::source_requests::SourceRequestRepository;
 use crate::repository::source_requests::comments::SourceRequestCommentRepository;
 
-#[derive(Serialize)]
+#[derive(Message)]
 pub struct ListCommentsResponse {
-    #[serde(rename = "c")]
+    #[prost(message, repeated, tag = "1")]
     comments: Vec<CommentResponse>,
 }
 
-#[derive(Serialize)]
+#[derive(Message)]
 pub struct CommentResponse {
-    #[serde(rename = "i")]
+    #[prost(int32, tag = "1")]
     id: i32,
-    #[serde(rename = "u")]
+    #[prost(string, tag = "2")]
     user_id: String,
-    #[serde(rename = "c")]
+    #[prost(string, tag = "3")]
     content: String,
 }
 
@@ -54,5 +55,5 @@ pub async fn list_source_request_comments(
             .collect(),
     };
 
-    Ok(Json(response))
+    Ok(Protobuf(response))
 }

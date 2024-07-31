@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 
+use prost::Message;
 use rand::distributions::{Alphanumeric, DistString};
-use serde::Deserialize;
 
 use crate::{events::RenameFilesEvent, repository::EVENT_ID_LENGTH, web::validate::{Validate, ValidationError}};
 
-#[derive(Deserialize)]
+#[derive(Message)]
 pub struct RenameFilesRequest {
-    #[serde(rename = "p")]
+    #[prost(map = "string, string", tag = "1")]
     pub paths: HashMap<String, String>,
 }
 

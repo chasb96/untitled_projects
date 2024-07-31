@@ -12,7 +12,12 @@ impl SnapshotsRepository for MongoDatabase {
             .get()
             .await?;
 
-        conn.collection::<Snapshot>("snapshots")
+        #[derive(Deserialize)]
+        struct Model {
+            snapshot: Snapshot,
+        }
+
+        conn.collection::<Model>("snapshots")
             .find(match query {
                 ListQuery::ProjectIds { project_ids } => doc! { "project_id": { "$in": project_ids } },
                 ListQuery::UserId { user_id } => doc! { "snapshot.uid": user_id },
@@ -20,6 +25,11 @@ impl SnapshotsRepository for MongoDatabase {
             .await?
             .try_collect()
             .await
+            .map(|models: Vec<Model>| models
+                .into_iter()
+                .map(|model| model.snapshot)
+                .collect()
+            )
             .map_err(QueryError::from)
     }
 

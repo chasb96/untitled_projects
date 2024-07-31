@@ -1,11 +1,11 @@
+use prost::Message;
 use rand::distributions::{Alphanumeric, DistString};
-use serde::Deserialize;
 
 use crate::{events::RemoveFilesEvent, repository::EVENT_ID_LENGTH, web::validate::{Validate, ValidationError}};
 
-#[derive(Deserialize)]
+#[derive(Message)]
 pub struct RemoveFilesRequest {
-    #[serde(rename = "p")]
+    #[prost(string, repeated, tag = "1")]
     pub paths: Vec<String>,
 }
 

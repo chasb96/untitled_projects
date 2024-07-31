@@ -1,13 +1,14 @@
 use auth_client::axum::extractors::{Authenticate, ClaimsUser};
-use axum::{extract::Path, response::IntoResponse, Json};
-use or_status_code::{OrInternalServerError, OrNotFound};
+use axum::{extract::Path, response::IntoResponse};
+use axum_extra::protobuf::Protobuf;
+use or_status_code::{OrBadRequest, OrInternalServerError, OrNotFound};
 use axum::http::StatusCode;
 
-use crate::{axum::extractors::{events_repository::EventsRepositoryExtractor, message_queue::MessageQueueExtractor, snapshots_repository::SnapshotsRepositoryExtractor, validate::Validated}, events::EventKind, message_queue::CreateSnapshot};
+use crate::{axum::extractors::{events_repository::EventsRepositoryExtractor, message_queue::MessageQueueExtractor, snapshots_repository::SnapshotsRepositoryExtractor}, events::EventKind, message_queue::CreateSnapshot};
 use crate::repository::snapshots::SnapshotsRepository;
 use crate::repository::events::EventsRepository;
 
-use super::{events::EventRequest, ApiResult};
+use super::{events::{EventRequest, EventRequestMessage}, validate::Validate, ApiResult};
 
 pub async fn event(
     Authenticate(user): Authenticate<ClaimsUser>,
@@ -15,8 +16,12 @@ pub async fn event(
     events_repository: EventsRepositoryExtractor,
     message_queue: MessageQueueExtractor,
     Path(project_id): Path<String>,
-    Validated(Json(request)): Validated<Json<EventRequest>>,
+    Protobuf(request): Protobuf<EventRequestMessage>,
 ) -> ApiResult<impl IntoResponse> {
+    let request: EventRequest = request.try_into().or_bad_request()?;
+
+    request.validate().or_bad_request()?;
+
     let mut project = snapshots_repository
         .get_by_id(&project_id, "latest")
         .await

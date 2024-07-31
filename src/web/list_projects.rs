@@ -1,9 +1,8 @@
-use axum::http::HeaderMap;
 use axum::{extract::Query, response::IntoResponse};
-use json_or_protobuf::JsonOrProtobuf;
+use axum_extra::protobuf::Protobuf;
 use or_status_code::OrInternalServerError;
 use prost::Message;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 use crate::axum::extractors::snapshots_repository::SnapshotsRepositoryExtractor;
 use crate::repository::snapshots::{ListQuery, SnapshotsRepository};
@@ -35,26 +34,22 @@ where
     Ok(project_ids)
 }
 
-#[derive(Serialize, Message)]
+#[derive(Message)]
 pub struct ListProjectsResponse {
-    #[serde(rename = "p")]
     #[prost(message, repeated, tag = "1")]
     projects: Vec<ProjectsResponse>,
 }
 
-#[derive(Serialize, Message)]
+#[derive(Message)]
 pub struct ProjectsResponse {
-    #[serde(rename = "id")]
     #[prost(string, tag = "1")]
     id: String,
-    #[serde(rename = "n")]
     #[prost(string, tag = "2")]
     name: String,
 }
 
 pub async fn list_projects(
     snapshots_repository: SnapshotsRepositoryExtractor,
-    headers: HeaderMap,
     Query(query): Query<ListProjectsQuery>,
 ) -> ApiResult<impl IntoResponse> {
     let snapshots = snapshots_repository
@@ -72,7 +67,7 @@ pub async fn list_projects(
             .collect(),
     };
 
-    Ok(JsonOrProtobuf::from_accept_header(response_body, &headers))
+    Ok(Protobuf(response_body))
 }
 
 impl Into<ListQuery> for ListProjectsQuery {

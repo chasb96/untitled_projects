@@ -1,15 +1,16 @@
 use auth_client::axum::extractors::{Authenticate, ClaimsUser};
-use axum::{extract::Path, response::IntoResponse, Json};
+use axum::{extract::Path, response::IntoResponse};
+use axum_extra::protobuf::Protobuf;
 use or_status_code::OrInternalServerError;
+use prost::Message;
 use rand::distributions::{Alphanumeric, DistString};
-use serde::{Deserialize, Serialize};
 
-use crate::{axum::extractors::{threads_repository::ThreadsRepositoryExtractor, validate::Validated}, repository::threads::NewThread, web::{validate::{Validate, ValidationError}, ApiResult}};
+use crate::{axum::extractors::threads_repository::ThreadsRepositoryExtractor, repository::threads::NewThread, web::{validate::{Validate, ValidationError}, ApiResult}};
 use crate::repository::threads::ThreadsRepository;
 
-#[derive(Deserialize)]
+#[derive(Message)]
 pub struct CreateThreadRequest {
-    #[serde(rename = "t")]
+    #[prost(string, tag = "1")]
     pub title: String,
 }
 
@@ -24,8 +25,9 @@ impl Validate for CreateThreadRequest {
     }
 }
 
-#[derive(Serialize)]
+#[derive(Message)]
 pub struct CreateThreadResponse {
+    #[prost(string, tag = "1")]
     pub id: String,
 }
 
@@ -33,7 +35,7 @@ pub async fn create_thread(
     Authenticate(user): Authenticate<ClaimsUser>,
     threads_repository: ThreadsRepositoryExtractor,
     Path(project_id): Path<String>,
-    Validated(Json(request)): Validated<Json<CreateThreadRequest>>,
+    Protobuf(request): Protobuf<CreateThreadRequest>,
 ) -> ApiResult<impl IntoResponse> {
     let thread_id = Alphanumeric.sample_string(&mut rand::thread_rng(), 16);
 
@@ -47,7 +49,7 @@ pub async fn create_thread(
         .await
         .or_internal_server_error()?;
 
-    Ok(Json(CreateThreadResponse { 
+    Ok(Protobuf(CreateThreadResponse { 
         id: thread_id 
     }))
 }

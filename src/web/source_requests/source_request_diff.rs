@@ -2,27 +2,27 @@ use std::collections::HashMap;
 
 use axum::extract::Path;
 use axum::response::IntoResponse;
-use axum::Json;
 use axum::http::StatusCode;
+use axum_extra::protobuf::Protobuf;
 use or_status_code::{OrBadRequest, OrInternalServerError};
-use serde::Serialize;
+use prost::Message;
 
 use crate::axum::extractors::{snapshots_repository::SnapshotsRepositoryExtractor, source_request_repository::SourceRequestsRepositoryExtractor};
 use crate::repository::snapshots::SnapshotsRepository;
 use crate::repository::source_requests::SourceRequestRepository;
 use crate::web::ApiResult;
 
-#[derive(Serialize)]
+#[derive(Message)]
 pub struct Diff {
-    #[serde(flatten)]
+    #[prost(map = "string, message", tag = "1")]
     pub diff_items: HashMap<String, DiffItem>
 }
 
-#[derive(Serialize)]
+#[derive(PartialEq, Message)]
 pub struct DiffItem {
-    #[serde(rename = "f")]
+    #[prost(string, tag = "1")]
     pub from: String,
-    #[serde(rename = "t")]
+    #[prost(string, tag = "2")]
     pub to: String,
 }
 
@@ -64,5 +64,5 @@ pub async fn source_request_diff(
             .collect()
     };
 
-    Ok(Json(response))
+    Ok(Protobuf(response))
 }

@@ -1,19 +1,19 @@
+use prost::Message;
 use rand::distributions::{Alphanumeric, DistString};
-use serde::Deserialize;
 
 use crate::{events::{AddFilesEvent, FileMap}, repository::EVENT_ID_LENGTH, web::validate::{Validate, ValidationError}};
 
-#[derive(Deserialize)]
+#[derive(Message)]
 pub struct AddFilesRequest {
-    #[serde(rename = "f")]
+    #[prost(message, repeated, tag = "1")]
     pub files: Vec<AddFileRequest>,
 }
 
-#[derive(Deserialize)]
+#[derive(Message)]
 pub struct AddFileRequest {
-    #[serde(rename = "p")]
+    #[prost(string, tag = "1")]
     pub path: String,
-    #[serde(rename = "fid")]
+    #[prost(string, tag = "2")]
     pub file_id: String,
 }
 

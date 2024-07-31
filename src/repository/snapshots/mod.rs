@@ -71,6 +71,6 @@ impl SnapshotsRepository for SnapshotsRepositoryOption {
 
 impl Default for SnapshotsRepositoryOption {
     fn default() -> Self {
-        Self::CachedMongo(Default::default())
+        Self::Mongo(Default::default())
     }
 }
