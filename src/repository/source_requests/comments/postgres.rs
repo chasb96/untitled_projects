@@ -6,11 +6,10 @@ use crate::repository::{error::QueryError, postgres::PostgresDatabase};
 use super::{SourceRequestComment, SourceRequestCommentRepository};
 
 impl SourceRequestCommentRepository for PostgresDatabase {
-    async fn create<'a>(&self, source_request_comment: super::CreateSourceRequestComment<'a>) -> Result<i32, QueryError> {
+    async fn create<'a>(&self, source_request_comment: super::CreateSourceRequestComment<'a>) -> Result<(), QueryError> {
         const CREATE_QUERY: &'static str = r#"
-            INSERT INTO source_request_comments (source_request_id, user_id, content)
-            VALUES ($1, $2, $3)
-            RETURNING id
+            INSERT INTO source_request_comments (id, source_request_id, user_id, content)
+            VALUES ($1, $2, $3, $4)
         "#;
 
         let mut conn = self.connection_pool
@@ -18,12 +17,13 @@ impl SourceRequestCommentRepository for PostgresDatabase {
             .await?;
 
         sqlx::query(CREATE_QUERY)
+            .bind(source_request_comment.id)
             .bind(source_request_comment.source_request_id)
             .bind(source_request_comment.user_id)
             .bind(source_request_comment.content)
-            .map(|row: PgRow| row.get("id"))
             .fetch_one(conn.as_mut())
             .await
+            .map(|_| ())
             .map_err(QueryError::from)
     }
 

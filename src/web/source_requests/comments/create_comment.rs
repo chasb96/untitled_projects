@@ -5,6 +5,7 @@ use axum_extra::protobuf::Protobuf;
 use or_status_code::{OrInternalServerError, OrNotFound};
 use prost::Message;
 use axum::http::StatusCode;
+use rand::distributions::{Alphanumeric, DistString};
 
 use crate::web::ApiResult;
 use crate::repository::source_requests::comments::CreateSourceRequestComment;
@@ -21,8 +22,8 @@ pub struct CreateCommentRequest {
 
 #[derive(Message)]
 pub struct CommentResponse {
-    #[prost(int32, tag = "1")]
-    pub id: i32,
+    #[prost(string, tag = "1")]
+    pub id: String,
 }
 
 pub async fn create_source_request_comment(
@@ -42,13 +43,16 @@ pub async fn create_source_request_comment(
         return Err(StatusCode::NOT_FOUND);
     }
 
+    let comment_id = Alphanumeric.sample_string(&mut rand::thread_rng(), 16);
+
     let comment = CreateSourceRequestComment {
+        id: &comment_id,
         source_request_id: &source_request_id,
         user_id: &user.id,
         content: &request.content,
     };
 
-    let comment_id = comments_repository
+    comments_repository
         .create(comment)
         .await
         .or_internal_server_error()?;

@@ -6,7 +6,9 @@ use cache::SnapshotsCachingRepository;
 
 use crate::events::Snapshot;
 
-use super::{error::QueryError, mongo::MongoDatabase, postgres::PostgresDatabase};
+use super::postgres::PostgresDatabase;
+use super::mongo::MongoDatabase;
+use super::error::QueryError;
 
 pub enum ListQuery {
     ProjectIds { project_ids: Vec<String> },
@@ -71,6 +73,6 @@ impl SnapshotsRepository for SnapshotsRepositoryOption {
 
 impl Default for SnapshotsRepositoryOption {
     fn default() -> Self {
-        Self::Mongo(Default::default())
+        Self::CachedMongo(Default::default())
     }
 }

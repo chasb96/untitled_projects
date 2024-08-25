@@ -16,8 +16,8 @@ pub struct ListCommentsResponse {
 
 #[derive(Message)]
 pub struct CommentResponse {
-    #[prost(int32, tag = "1")]
-    id: i32,
+    #[prost(string, tag = "1")]
+    id: String,
     #[prost(string, tag = "2")]
     user_id: String,
     #[prost(string, tag = "3")]
