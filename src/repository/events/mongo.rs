@@ -15,14 +15,20 @@ impl EventsRepository for MongoDatabase {
             .get()
             .await?;
 
-        let order = conn.collection::<u32>("events")
+        #[derive(Deserialize)]
+        struct Order {
+            order: u32,
+        }
+
+        let order = conn.collection::<Order>("events")
             .find(doc! { "project_id": project_id, })
             .sort(doc! { "order": -1 })
             .projection(doc! { "order": 1, })
             .limit(1)
             .await?
             .try_next()
-            .await?;
+            .await?
+            .map(|count| count.order);
 
         conn.collection("events")
             .insert_one(doc! {

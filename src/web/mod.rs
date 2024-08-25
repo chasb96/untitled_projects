@@ -9,8 +9,6 @@ mod remove_tag;
 mod threads;
 mod source_requests;
 
-pub mod validate;
-
 pub use list_projects::list_projects;
 pub use create_project::create_project;
 pub use get_project_by_id::get_project_by_id;

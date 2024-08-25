@@ -1,5 +1,6 @@
 use futures::TryStreamExt;
 use mongodb::bson::doc;
+use serde::Deserialize;
 
 use crate::repository::{error::QueryError, mongo::MongoDatabase};
 
@@ -11,12 +12,18 @@ impl ThreadsRepository for MongoDatabase {
             .get()
             .await?;
 
-        let order = conn.collection::<u32>("project_thread")
+        #[derive(Deserialize)]
+        struct Order {
+            order: u32,
+        }
+
+        let order = conn.collection::<Order>("project_thread")
             .find(doc! { "project_id": thread.project_id, })
             .max(doc! { "order": 1, })
             .await?
             .try_next()
-            .await?;
+            .await?
+            .map(|count| count.order);
 
         conn.collection("project_thread")
             .insert_one(doc! {
@@ -64,14 +71,20 @@ impl ThreadsRepository for MongoDatabase {
             .get()
             .await?;
 
-        let order = conn.collection::<u32>("project_thread_comments")
+        #[derive(Deserialize)]
+        struct Order {
+            order: u32,
+        }
+
+        let order = conn.collection::<Order>("project_thread_comments")
             .find(doc! { "thread_id": comment.thread_id, })
             .sort(doc! { "order": -1 })
             .projection(doc! { "order": 1, })
             .limit(1)
             .await?
             .try_next()
-            .await?;
+            .await?
+            .map(|count| count.order);
 
         conn.collection("project_thread_comments")
             .insert_one(doc! {

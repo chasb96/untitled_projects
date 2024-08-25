@@ -1,11 +1,15 @@
 use auth_client::axum::extractors::{Authenticate, ClaimsUser};
-use axum::{extract::Path, response::IntoResponse};
+use axum::extract::Path;
+use axum::response::IntoResponse;
 use axum_extra::protobuf::Protobuf;
 use or_status_code::{OrInternalServerError, OrNotFound};
 use prost::Message;
 use axum::http::StatusCode;
 
-use crate::{axum::extractors::{source_request_comments_repository::SourceRequestCommentsRepositoryExtractor, source_request_repository::SourceRequestsRepositoryExtractor}, repository::source_requests::comments::CreateSourceRequestComment, web::{validate::{Validate, ValidationError}, ApiResult}};
+use crate::web::ApiResult;
+use crate::repository::source_requests::comments::CreateSourceRequestComment;
+use crate::axum::extractors::source_request_repository::SourceRequestsRepositoryExtractor;
+use crate::axum::extractors::source_request_comments_repository::SourceRequestCommentsRepositoryExtractor;
 use crate::repository::source_requests::SourceRequestRepository;
 use crate::repository::source_requests::comments::SourceRequestCommentRepository;
 
@@ -13,16 +17,6 @@ use crate::repository::source_requests::comments::SourceRequestCommentRepository
 pub struct CreateCommentRequest {
     #[prost(string, tag = "1")]
     pub content: String,
-}
-
-impl Validate for CreateCommentRequest {
-    fn validate(&self) -> Result<(), ValidationError> {
-        let content_len = self.content.len();
-
-        if content_len == 0 { return Err("Content must have atleast one character".into()) }
-
-        Ok(())
-    }
 }
 
 #[derive(Message)]

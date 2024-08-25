@@ -1,11 +1,15 @@
 use auth_client::axum::extractors::{Authenticate, ClaimsUser};
-use axum::{extract::Path, response::IntoResponse};
+use axum::response::IntoResponse;
+use axum::extract::Path;
 use axum_extra::protobuf::Protobuf;
 use or_status_code::{OrInternalServerError, OrNotFound};
 use prost::Message;
 use rand::distributions::{Alphanumeric, DistString};
 
-use crate::{axum::extractors::{snapshots_repository::SnapshotsRepositoryExtractor, source_request_repository::SourceRequestsRepositoryExtractor}, repository::source_requests::{CreateNewSourceRequest, NewFileMap}, web::{validate::{Validate, ValidationError}, ApiResult}};
+use crate::repository::source_requests::{CreateNewSourceRequest, NewFileMap};
+use crate::axum::extractors::source_request_repository::SourceRequestsRepositoryExtractor;
+use crate::axum::extractors::snapshots_repository::SnapshotsRepositoryExtractor;
+use crate::web::ApiResult;
 use crate::repository::snapshots::SnapshotsRepository;
 use crate::repository::source_requests::SourceRequestRepository;
 
@@ -25,16 +29,6 @@ pub struct FileMap {
     pub path: String,
     #[prost(string, tag = "2")]
     pub file_id: String,
-}
-
-impl Validate for CreateSourceRequestRequest {
-    fn validate(&self) -> Result<(), ValidationError> {
-        if self.title.trim().is_empty() { return Err("Title must be provided".into()) }
-        if self.title.len() > 64 { return Err("Title must be less than 64 characters".into())}
-        if self.files.len() == 0 { return Err("Atleast one file must be included".into()) }
-
-        Ok(())
-    }
 }
 
 #[derive(Message)]

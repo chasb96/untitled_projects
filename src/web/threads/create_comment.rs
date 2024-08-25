@@ -1,28 +1,21 @@
 use auth_client::axum::extractors::{Authenticate, ClaimsUser};
-use axum::{extract::Path, response::IntoResponse};
+use axum::response::IntoResponse;
+use axum::extract::Path;
 use axum::http::StatusCode;
 use axum_extra::protobuf::Protobuf;
 use or_status_code::OrInternalServerError;
 use prost::Message;
 use rand::distributions::{Alphanumeric, DistString};
 
-use crate::{axum::extractors::threads_repository::ThreadsRepositoryExtractor, repository::threads::NewComment, web::{validate::{Validate, ValidationError}, ApiResult}};
+use crate::web::ApiResult;
+use crate::repository::threads::NewComment;
+use crate::axum::extractors::threads_repository::ThreadsRepositoryExtractor;
 use crate::repository::threads::ThreadsRepository;
 
 #[derive(Message)]
 pub struct CreateProjectRequest {
     #[prost(string, tag = "1")]
     pub content: String,
-}
-
-impl Validate for CreateProjectRequest {
-    fn validate(&self) -> Result<(), ValidationError> {
-        let content_len = self.content.len();
-
-        if content_len == 0 { return Err("Content must have atleast one character".into()) }
-
-        Ok(())
-    }
 }
 
 #[derive(Message)]
