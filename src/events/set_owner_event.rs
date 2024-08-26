@@ -8,6 +8,8 @@ pub struct SetOwnerEvent {
     pub event_id: String,
     #[serde(rename = "uid")]
     pub owner_id: String,
+    #[serde(rename = "pe")]
+    pub previous_event_id: String,
 }
 
 impl Event for SetOwnerEvent {
@@ -18,6 +20,10 @@ impl Event for SetOwnerEvent {
 
     fn event_id(&self) -> &str {
         &self.event_id
+    }
+
+    fn previous(&self) -> Option<&str> {
+        Some(&self.previous_event_id)
     }
 }
 

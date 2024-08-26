@@ -14,6 +14,8 @@ pub struct CompletedSourceRequest {
     pub title: String,
     #[serde(rename = "d")]
     pub description: String,
+    #[serde(rename = "pe")]
+    pub previous_event_id: String,
     #[serde(rename = "a")]
     pub approvers: HashSet<String>,
     #[serde(rename = "f")]

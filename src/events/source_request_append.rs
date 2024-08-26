@@ -13,6 +13,8 @@ pub struct SourceRequestAppend {
     pub user_id: String,
     #[serde(rename = "t")]
     pub title: String,
+    #[serde(rename = "pe")]
+    pub previous_event_id: String,
     #[serde(rename = "f")]
     pub files: Vec<FileMap>,
 }
@@ -23,6 +25,7 @@ impl From<repository::source_requests::CompletedSourceRequest> for SourceRequest
             event_id: Alphanumeric.sample_string(&mut rand::thread_rng(), EVENT_ID_LENGTH),
             user_id: source_request.user_id,
             title: source_request.title,
+            previous_event_id: source_request.previous_event_id,
             files: source_request.files
                 .into_iter()
                 .map(FileMap::from)
@@ -61,6 +64,10 @@ impl Event for SourceRequestAppend {
     
     fn event_id(&self) -> &str {
         &self.event_id
+    }
+
+    fn previous(&self) -> Option<&str> {
+        Some(&self.previous_event_id)
     }
 }
 

@@ -17,8 +17,8 @@ impl TagsRepository for MongoDatabase {
             .get()
             .await?
             .collection::<Model>("project_tags")
-            .find(doc! { "project_id": project_id })
-            .projection(doc! { "tag": 1 })
+            .find(doc! { "p": project_id })
+            .projection(doc! { "t": 1 })
             .await?;
 
         let mut tags = Vec::new();
@@ -36,8 +36,8 @@ impl TagsRepository for MongoDatabase {
             .await?
             .collection("project_tags")
             .insert_one(doc! {
-                "project_id": project_id,
-                "tag": tag,
+                "p": project_id,
+                "t": tag,
             })
             .await
             .map(|_| ())
@@ -50,8 +50,8 @@ impl TagsRepository for MongoDatabase {
             .await?
             .collection::<()>("project_tags")
             .delete_one(doc! {
-                "project_id": project_id,
-                "tag": tag,
+                "p": project_id,
+                "t": tag,
             })
             .await
             .map(|_| ())

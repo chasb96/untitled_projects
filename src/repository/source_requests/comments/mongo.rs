@@ -16,10 +16,10 @@ impl SourceRequestCommentRepository for MongoDatabase {
             .await?
             .collection("source_request_comments")
             .insert_one(doc! {
-                "id": source_request_comment.id,
-                "source_request_id": source_request_comment.source_request_id,
-                "user_id": source_request_comment.user_id,
-                "content": source_request_comment.content,
+                "i": source_request_comment.id,
+                "sr": source_request_comment.source_request_id,
+                "u": source_request_comment.user_id,
+                "c": source_request_comment.content,
             })
             .await
             .map(|_| ())
@@ -39,11 +39,11 @@ impl SourceRequestCommentRepository for MongoDatabase {
             .get()
             .await?
             .collection::<Model>("source_request_comments")
-            .find(doc! { "source_request_id": source_request_id })
+            .find(doc! { "sr": source_request_id })
             .projection(doc! {
-                "source_request_id": 1,
-                "user_id": 1,
-                "content": 1,
+                "sr": 1,
+                "u": 1,
+                "c": 1,
             })
             .await?;
 

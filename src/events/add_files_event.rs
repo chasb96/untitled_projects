@@ -6,6 +6,8 @@ use super::{snapshot::Snapshot, Event, EventKind};
 pub struct AddFilesEvent {
     #[serde(rename = "eid")]
     pub event_id: String,
+    #[serde(rename = "pe")]
+    pub previous_event_id: String,
     #[serde(rename = "f")]
     pub files: Vec<FileMap>,
 }
@@ -29,6 +31,10 @@ impl Event for AddFilesEvent {
     
     fn event_id(&self) -> &str {
         &self.event_id
+    }
+
+    fn previous(&self) -> Option<&str> {
+        Some(&self.previous_event_id)
     }
 }
 

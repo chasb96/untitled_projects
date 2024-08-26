@@ -57,6 +57,7 @@ pub async fn create_source_request(
         user_id: &user.id,
         title: &request.title,
         description: &request.description,
+        previous_event_id: &project.event_id,
         files: request
             .files
             .iter()

@@ -8,6 +8,8 @@ pub struct RemoveFilesEvent {
     pub event_id: String,
     #[serde(rename = "p")]
     pub paths: Vec<String>,
+    #[serde(rename = "pe")]
+    pub previous_event_id: String,
 }
 
 impl Event for RemoveFilesEvent {
@@ -21,6 +23,10 @@ impl Event for RemoveFilesEvent {
 
     fn event_id(&self) -> &str {
         &self.event_id
+    }
+
+    fn previous(&self) -> Option<&str> {
+        Some(&self.previous_event_id)
     }
 }
 

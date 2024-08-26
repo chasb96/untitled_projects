@@ -17,8 +17,8 @@ impl SourceRequestRepository for MongoDatabase {
             .get()
             .await?
             .collection::<Model>("source_requests")
-            .find_one(doc! { "id": id })
-            .projection(doc! { "source_request": 1, })
+            .find_one(doc! { "i": id })
+            .projection(doc! { "sr": 1, })
             .await
             .map(|result| result.map(|model| model.source_request))
             .map_err(QueryError::from)
@@ -34,8 +34,8 @@ impl SourceRequestRepository for MongoDatabase {
             .get()
             .await?
             .collection::<Model>("source_requests")
-            .find_one(doc! { "id": id })
-            .projection(doc! { "source_request": 1 })
+            .find_one(doc! { "i": id })
+            .projection(doc! { "sr": 1 })
             .await
             .map(|result| result.map(|model| model.approvable))
             .map_err(QueryError::from)
@@ -51,8 +51,8 @@ impl SourceRequestRepository for MongoDatabase {
             .get()
             .await?
             .collection::<Model>("source_requests")
-            .find_one(doc! { "id": id })
-            .projection(doc! { "source_request": 1 })
+            .find_one(doc! { "i": id })
+            .projection(doc! { "sr": 1 })
             .await
             .map(|result| result.map(|model| model.completable))
             .map_err(QueryError::from)
@@ -66,9 +66,9 @@ impl SourceRequestRepository for MongoDatabase {
             .await?
             .collection("source_requests")
             .insert_one(doc! {
-                "id": id,
-                "project_id": source_request.project_id(),
-                "source_request": bson::to_bson(&source_request)?,
+                "i": id,
+                "p": source_request.project_id(),
+                "sr": bson::to_bson(&source_request)?,
             })
             .await
             .map(|_| ())
@@ -81,9 +81,9 @@ impl SourceRequestRepository for MongoDatabase {
             .await?
             .collection::<()>("source_requests")
             .update_one(
-                doc! { "id": id }, 
+                doc! { "i": id }, 
                 doc! { "$set": { 
-                    "source_request": bson::to_bson(&source_request.into())? 
+                    "sr": bson::to_bson(&source_request.into())? 
                 } },
             )
             .await
@@ -102,10 +102,10 @@ impl SourceRequestRepository for MongoDatabase {
             .get()
             .await?
             .collection::<Model>("source_requests")
-            .find(doc! { "project_id": project_id })
+            .find(doc! { "p": project_id })
             .projection(doc! { 
-                "id": 1,
-                "source_request": 1 
+                "i": 1,
+                "sr": 1 
             })
             .await?;
 
@@ -123,7 +123,7 @@ impl SourceRequestRepository for MongoDatabase {
             .get()
             .await?
             .collection::<()>("source_requests")
-            .delete_one(doc! { "id": id })
+            .delete_one(doc! { "i": id })
             .await
             .map(|_| ())
             .map_err(QueryError::from)

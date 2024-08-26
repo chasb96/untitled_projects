@@ -43,6 +43,8 @@ pub trait Event {
     fn apply(self, entity: &mut Snapshot);
 
     fn event_id(&self) -> &str;
+
+    fn previous(&self) -> Option<&str>;
 }
 
 impl Event for EventKind {
@@ -67,6 +69,18 @@ impl Event for EventKind {
             EventKind::RemoveFiles(e) => e.event_id(),
             EventKind::RenameFiles(e) => e.event_id(),
             EventKind::SourceRequestAppend(e) => e.event_id(),
+        }
+    }
+
+    fn previous(&self) -> Option<&str> {
+        match self {
+            EventKind::Create(e) => e.previous(),
+            EventKind::Name(e) => e.previous(),
+            EventKind::SetOwner(e) => e.previous(),
+            EventKind::AddFiles(e) => e.previous(),
+            EventKind::RemoveFiles(e) => e.previous(),
+            EventKind::RenameFiles(e) => e.previous(),
+            EventKind::SourceRequestAppend(e) => e.previous(),
         }
     }
 }

@@ -10,6 +10,8 @@ pub struct RenameFilesEvent {
     pub event_id: String,
     #[serde(rename = "p")]
     pub paths: HashMap<String, String>,
+    #[serde(rename = "pe")]
+    pub previous_event_id: String,
 }
 
 impl Event for RenameFilesEvent {
@@ -25,6 +27,10 @@ impl Event for RenameFilesEvent {
 
     fn event_id(&self) -> &str {
         &self.event_id
+    }
+
+    fn previous(&self) -> Option<&str> {
+        Some(&self.previous_event_id)
     }
 }
 

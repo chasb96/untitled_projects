@@ -1,9 +1,16 @@
 use auth_client::axum::extractors::{Authenticate, ClaimsUser};
-use axum::{extract::Path, response::IntoResponse};
+use axum::response::IntoResponse;
+use axum::extract::Path;
 use or_status_code::{OrInternalServerError, OrNotFound};
 use axum::http::StatusCode;
 
-use crate::{axum::extractors::{events_repository, message_queue::MessageQueueExtractor, snapshots_repository::SnapshotsRepositoryExtractor, source_request_repository::SourceRequestsRepositoryExtractor}, events::EventKind, message_queue::CreateSnapshot, web::ApiResult};
+use crate::web::ApiResult;
+use crate::message_queue::CreateSnapshot;
+use crate::events::EventKind;
+use crate::axum::extractors::events_repository;
+use crate::axum::extractors::source_request_repository::SourceRequestsRepositoryExtractor;
+use crate::axum::extractors::snapshots_repository::SnapshotsRepositoryExtractor;
+use crate::axum::extractors::message_queue::MessageQueueExtractor;
 use crate::repository::snapshots::SnapshotsRepository;
 use crate::repository::source_requests::SourceRequestRepository;
 use crate::repository::events::EventsRepository;

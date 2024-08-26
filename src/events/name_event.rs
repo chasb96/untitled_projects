@@ -8,6 +8,8 @@ pub struct NameEvent {
     pub event_id: String,
     #[serde(rename = "n")]
     pub name: String,
+    #[serde(rename = "pe")]
+    pub previous_event_id: String,
 }
 
 impl Event for NameEvent {
@@ -18,6 +20,10 @@ impl Event for NameEvent {
 
     fn event_id(&self) -> &str {
         &self.event_id
+    }
+
+    fn previous(&self) -> Option<&str> {
+        Some(&self.previous_event_id)
     }
 }
 

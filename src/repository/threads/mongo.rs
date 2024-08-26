@@ -18,8 +18,8 @@ impl ThreadsRepository for MongoDatabase {
         }
 
         let order = conn.collection::<Order>("project_thread")
-            .find(doc! { "project_id": thread.project_id, })
-            .max(doc! { "order": 1, })
+            .find(doc! { "p": thread.project_id, })
+            .max(doc! { "o": 1, })
             .await?
             .try_next()
             .await?
@@ -27,11 +27,11 @@ impl ThreadsRepository for MongoDatabase {
 
         conn.collection("project_thread")
             .insert_one(doc! {
-                "id": thread.id,
-                "project_id": thread.project_id,
-                "user_id": thread.user_id,
-                "title": thread.title,
-                "order": if let Some(order) = order { order + 1 } else { 0 },
+                "i": thread.id,
+                "p": thread.project_id,
+                "u": thread.user_id,
+                "t": thread.title,
+                "o": if let Some(order) = order { order + 1 } else { 0 },
             })
             .await
             .map(|_| ())
@@ -43,8 +43,8 @@ impl ThreadsRepository for MongoDatabase {
             .get()
             .await?
             .collection::<Thread>("project_thread")
-            .find(doc! { "project_id": project_id, })
-            .sort(doc! { "order": 1, })
+            .find(doc! { "p": project_id, })
+            .sort(doc! { "o": 1, })
             .await?;
 
         let mut threads = Vec::new();
@@ -61,7 +61,7 @@ impl ThreadsRepository for MongoDatabase {
             .get()
             .await?
             .collection::<Thread>("project_thread")
-            .find_one(doc! { "id": id, })
+            .find_one(doc! { "i": id, })
             .await
             .map_err(QueryError::from)
     }
@@ -77,9 +77,9 @@ impl ThreadsRepository for MongoDatabase {
         }
 
         let order = conn.collection::<Order>("project_thread_comments")
-            .find(doc! { "thread_id": comment.thread_id, })
-            .sort(doc! { "order": -1 })
-            .projection(doc! { "order": 1, })
+            .find(doc! { "th": comment.thread_id, })
+            .sort(doc! { "o": -1 })
+            .projection(doc! { "o": 1, })
             .limit(1)
             .await?
             .try_next()
@@ -88,11 +88,11 @@ impl ThreadsRepository for MongoDatabase {
 
         conn.collection("project_thread_comments")
             .insert_one(doc! {
-                "id": comment.id,
-                "thread_id": comment.thread_id,
-                "user_id": comment.user_id,
-                "content": comment.content,
-                "order": if let Some(order) = order { order + 1 } else { 0 },
+                "i": comment.id,
+                "th": comment.thread_id,
+                "u": comment.user_id,
+                "c": comment.content,
+                "o": if let Some(order) = order { order + 1 } else { 0 },
             })
             .await
             .map(|_| ())
@@ -104,7 +104,7 @@ impl ThreadsRepository for MongoDatabase {
             .get()
             .await?
             .collection::<Comment>("project_thread_comments")
-            .find(doc! { "thread_id": thread_id, })
+            .find(doc! { "th": thread_id, })
             .await?;
 
         let mut comments = Vec::new();

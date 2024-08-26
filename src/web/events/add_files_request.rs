@@ -5,6 +5,8 @@ use crate::{events::{AddFilesEvent, FileMap}, repository::EVENT_ID_LENGTH};
 
 #[derive(Deserialize)]
 pub struct AddFilesRequest {
+    #[serde(rename = "pe")]
+    pub previous_event_id: String,
     #[serde(rename = "f")]
     pub files: Vec<AddFileRequest>,
 }
@@ -21,6 +23,7 @@ impl Into<AddFilesEvent> for AddFilesRequest {
     fn into(self) -> AddFilesEvent {
         AddFilesEvent {
             event_id: Alphanumeric.sample_string(&mut rand::thread_rng(), EVENT_ID_LENGTH),
+            previous_event_id: self.previous_event_id,
             files: self.files
                 .into_iter()
                 .map(|file_request| FileMap {

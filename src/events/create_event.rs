@@ -23,6 +23,10 @@ impl Event for CreateEvent {
     fn event_id(&self) -> &str {
         &self.event_id
     }
+
+    fn previous(&self) -> Option<&str> {
+        None
+    }
 }
 
 impl Into<Snapshot> for CreateEvent {

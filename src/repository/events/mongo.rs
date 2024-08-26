@@ -2,7 +2,9 @@ use futures::TryStreamExt;
 use mongodb::bson::{self, doc};
 use serde::Deserialize;
 
-use crate::{events::EventKind, repository::{error::QueryError, mongo::MongoDatabase}};
+use crate::repository::mongo::MongoDatabase;
+use crate::repository::error::QueryError;
+use crate::events::EventKind;
 use crate::events::Event;
 
 use super::EventsRepository;
@@ -15,27 +17,12 @@ impl EventsRepository for MongoDatabase {
             .get()
             .await?;
 
-        #[derive(Deserialize)]
-        struct Order {
-            order: u32,
-        }
-
-        let order = conn.collection::<Order>("events")
-            .find(doc! { "project_id": project_id, })
-            .sort(doc! { "order": -1 })
-            .projection(doc! { "order": 1, })
-            .limit(1)
-            .await?
-            .try_next()
-            .await?
-            .map(|count| count.order);
-
         conn.collection("events")
             .insert_one(doc! {
-                "project_id": project_id,
-                "event_id": event.event_id(),
-                "order": if let Some(order) = order { order + 1 } else { 0 },
-                "event": bson::to_bson(&event)?,
+                "p": project_id,
+                "e": event.event_id(),
+                "pe": event.previous(),
+                "c": bson::to_bson(&event)?,
             })
             .await
             .map(|_| ())
@@ -53,9 +40,8 @@ impl EventsRepository for MongoDatabase {
         }
 
         conn.collection::<Model>("events")
-            .find(doc! { "project_id": project_id, })
-            .sort(doc! { "order": 1, })
-            .projection(doc! { "event": 1, })
+            .find(doc! { "p": project_id, })
+            .projection(doc! { "c": 1, })
             .await?
             .try_collect()
             .await

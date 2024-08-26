@@ -14,6 +14,8 @@ pub struct ApprovedSourceRequest {
     pub title: String,
     #[serde(rename = "d")]
     pub description: String,
+    #[serde(rename = "pe")]
+    pub previous_event_id: String,
     #[serde(rename = "a")]
     pub approvers: HashSet<String>,
     #[serde(rename = "f")]
@@ -41,6 +43,7 @@ impl ApprovedSourceRequest {
             user_id: self.user_id,
             title: self.title,
             description: self.description,
+            previous_event_id: self.previous_event_id,
             approvers,
             files: self.files,
         }
@@ -51,6 +54,7 @@ impl ApprovedSourceRequest {
             project_id: self.project_id,
             user_id: self.user_id,
             title: self.title,
+            previous_event_id: self.previous_event_id,
             description: self.description,
             approvers: self.approvers,
             files: self.files,

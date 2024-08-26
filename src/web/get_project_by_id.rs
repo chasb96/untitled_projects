@@ -19,7 +19,9 @@ pub struct ProjectResponse {
     pub name: String,
     #[prost(string, tag = "3")]
     pub user_id: String,
-    #[prost(message, repeated, tag = "4")]
+    #[prost(string, tag = "4")]
+    pub event_id: String,
+    #[prost(message, repeated, tag = "5")]
     pub files: Vec<ProjectFileReponse>,
 }
 
@@ -66,6 +68,7 @@ pub async fn get_project_by_id(
         id: project.id,
         name: project.name,
         user_id: project.user_id,
+        event_id: project.event_id,
         files: project.files
             .into_iter()
             .map(|file| ProjectFileReponse {

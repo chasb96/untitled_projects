@@ -12,6 +12,8 @@ pub struct NewSourceRequest {
     pub title: String,
     #[serde(rename = "d")]
     pub description: String,
+    #[serde(rename = "pe")]
+    pub previous_event_id: String,
     #[serde(rename = "f")]
     pub files: Vec<FileMap>,
 }
@@ -36,6 +38,8 @@ pub struct CreateNewSourceRequest<'a> {
     pub title: &'a str,
     #[serde(rename = "d")]
     pub description: &'a str,
+    #[serde(rename = "pe")]
+    pub previous_event_id: &'a str,
     #[serde(rename = "f")]
     pub files: Vec<NewFileMap<'a>>,
 }
@@ -47,6 +51,7 @@ impl NewSourceRequest {
             user_id: self.user_id,
             title: self.title,
             description: self.description,
+            previous_event_id: self.previous_event_id,
             approvers: vec![approver]
                 .into_iter()
                 .collect(),

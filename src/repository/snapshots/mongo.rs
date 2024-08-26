@@ -19,8 +19,8 @@ impl SnapshotsRepository for MongoDatabase {
 
         conn.collection::<Model>("snapshots")
             .find(match query {
-                ListQuery::ProjectIds { project_ids } => doc! { "project_id": { "$in": project_ids } },
-                ListQuery::UserId { user_id } => doc! { "snapshot.uid": user_id },
+                ListQuery::ProjectIds { project_ids } => doc! { "p": { "$in": project_ids } },
+                ListQuery::UserId { user_id } => doc! { "s.uid": user_id },
             })
             .await?
             .try_collect()
@@ -42,9 +42,9 @@ impl SnapshotsRepository for MongoDatabase {
 
         conn.collection("snapshots")
             .insert_one(doc! {
-                "project_id": project_id,
-                "version": version,
-                "snapshot": bson::to_bson(&snapshot)?,
+                "p": project_id,
+                "v": version,
+                "s": bson::to_bson(&snapshot)?,
             })
             .await?;
 
@@ -63,10 +63,10 @@ impl SnapshotsRepository for MongoDatabase {
 
         conn.collection::<Model>("snapshots")
             .find_one(doc! {
-                "project_id": project_id,
-                "version": version,
+                "p": project_id,
+                "v": version,
             })
-            .projection(doc! { "snapshot": 1, })
+            .projection(doc! { "s": 1, })
             .await
             .map(|result| result.map(|model| model.snapshot))
             .map_err(QueryError::from)
@@ -79,8 +79,8 @@ impl SnapshotsRepository for MongoDatabase {
 
         conn.collection::<()>("snapshots")
             .delete_one(doc! {
-                "project_id": project_id,
-                "version": version,
+                "p": project_id,
+                "v": version,
             })
             .await?;
 
