@@ -43,18 +43,6 @@ impl<'a> CreateSourceRequest<'a> {
             CreateSourceRequest::New(new) => new.project_id,
         }
     }
-
-    pub fn user_id(&self) -> &str {
-        match self {
-            CreateSourceRequest::New(new) => new.user_id,
-        }
-    }
-
-    pub fn state_i16(&self) -> i16 {
-        match self {
-            CreateSourceRequest::New(_) => 0,
-        }
-    }
 }
 
 impl SourceRequest {
@@ -63,22 +51,6 @@ impl SourceRequest {
             SourceRequest::New(new) => &new.project_id,
             SourceRequest::Approved(approved) => &approved.project_id,
             SourceRequest::Completed(completed) => &completed.project_id,
-        }
-    }
-
-    pub fn user_id(&self) -> &str {
-        match self {
-            SourceRequest::New(new) => &new.user_id,
-            SourceRequest::Approved(approved) => &approved.user_id,
-            SourceRequest::Completed(completed) => &completed.user_id,
-        }
-    }
-
-    pub fn state_i16(&self) -> i16 {
-        match self {
-            SourceRequest::New(_) => 0,
-            SourceRequest::Approved(_) => 1,
-            SourceRequest::Completed(_) => 2,
         }
     }
 

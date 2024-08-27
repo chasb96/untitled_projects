@@ -1,6 +1,5 @@
 mod deadpool;
 
-pub mod postgres;
 pub mod mongo;
 pub mod error;
 pub mod events;

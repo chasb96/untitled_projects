@@ -1,7 +1,5 @@
-mod postgres;
 mod mongo;
 
-use crate::repository::postgres::PostgresDatabase;
 use crate::repository::mongo::MongoDatabase;
 use crate::repository::error::QueryError;
 
@@ -27,21 +25,18 @@ pub trait SourceRequestCommentRepository {
 
 #[allow(dead_code)]
 pub enum SourceRequestCommentRepositoryOption {
-    Postgres(PostgresDatabase),
     Mongo(MongoDatabase),
 }
 
 impl SourceRequestCommentRepository for SourceRequestCommentRepositoryOption {
     async fn create<'a>(&self, source_request_comment: CreateSourceRequestComment<'a>) -> Result<(), QueryError> {
         match self {
-            Self::Postgres(pg) => pg.create(source_request_comment).await,
             Self::Mongo(mongo) => mongo.create(source_request_comment).await,
         }
     }
 
     async fn list<'a>(&self, source_request_id: &'a str) -> Result<Vec<SourceRequestComment>, QueryError> {
         match self {
-            Self::Postgres(pg) => pg.list(source_request_id).await,
             Self::Mongo(mongo) => mongo.list(source_request_id).await,
         }
     }

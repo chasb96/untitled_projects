@@ -1,4 +1,3 @@
-mod postgres;
 mod mongo;
 mod new;
 mod approved;
@@ -16,7 +15,8 @@ pub use source_request::{SourceRequest, SourceRequestSummary, FileMap, NewFileMa
 pub use completed::{CompletedSourceRequest, CompletedSourceRequestSummary};
 pub use completable::Completable;
 
-use super::{error::QueryError, postgres::PostgresDatabase};
+use super::mongo::MongoDatabase;
+use super::error::QueryError;
 
 pub trait SourceRequestRepository {
     async fn get_by_id<'a>(&self, id: &'a str) -> Result<Option<SourceRequest>, QueryError>;
@@ -35,55 +35,55 @@ pub trait SourceRequestRepository {
 }
 
 pub enum SourceRequestRepositoryOption {
-    Postgres(PostgresDatabase),
+    Mongo(MongoDatabase),
 }
 
 impl SourceRequestRepository for SourceRequestRepositoryOption {
     async fn get_by_id<'a>(&self, id: &'a str) -> Result<Option<SourceRequest>, QueryError> {
         match self {
-            SourceRequestRepositoryOption::Postgres(pg) => pg.get_by_id(id).await,
+            Self::Mongo(m) => m.get_by_id(id).await,
         }
     }
 
     async fn get_approvable<'a>(&self, id: &'a str) -> Result<Option<Approvable>, QueryError> {
         match self {
-            SourceRequestRepositoryOption::Postgres(pg) => pg.get_approvable(id).await,
+            Self::Mongo(m) => m.get_approvable(id).await,
         }
     }
 
     async fn get_completable<'a>(&self, id: &'a str) -> Result<Option<Completable>, QueryError> {
         match self {
-            SourceRequestRepositoryOption::Postgres(pg) => pg.get_completable(id).await,
+            Self::Mongo(m) => m.get_completable(id).await,
         }
     }
 
     async fn create<'a>(&self, id: &'a str, source_request: impl Into<CreateSourceRequest<'a>>) -> Result<(), QueryError> {
         match self {
-            SourceRequestRepositoryOption::Postgres(pg) => pg.create(id, source_request).await,
+            Self::Mongo(m) => m.create(id, source_request).await,
         }
     }
 
     async fn update<'a>(&self, id: &'a str, source_request: impl Into<SourceRequest>) -> Result<(), QueryError> {
         match self {
-            SourceRequestRepositoryOption::Postgres(pg) => pg.update(id, source_request).await,
+            Self::Mongo(m) => m.update(id, source_request).await,
         }
     }
 
     async fn list_by_project_id(&self, project_id: &str) -> Result<Vec<(String, SourceRequestSummary)>, QueryError> {
         match self {
-            SourceRequestRepositoryOption::Postgres(pg) => pg.list_by_project_id(project_id).await,
+            Self::Mongo(m) => m.list_by_project_id(project_id).await,
         }
     }
 
     async fn delete<'a>(&self, id: &'a str) -> Result<(), QueryError> {
         match self {
-            SourceRequestRepositoryOption::Postgres(pg) => pg.delete(id).await,
+            Self::Mongo(m) => m.delete(id).await,
         }
     }
 }
 
 impl Default for SourceRequestRepositoryOption {
     fn default() -> Self {
-        SourceRequestRepositoryOption::Postgres(PostgresDatabase::default())
+        Self::Mongo(Default::default())
     }
 }

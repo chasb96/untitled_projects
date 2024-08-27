@@ -1,26 +1,7 @@
 use deadpool::managed::{Manager, Metrics, RecycleError, RecycleResult};
-use redis::{aio::MultiplexedConnection, Client, RedisError};
+use redis::{Client, RedisError};
+use redis::aio::MultiplexedConnection;
 use mongodb::{bson::doc, Client as MongoClient};
-use sqlx::{Connection, Error, PgConnection};
-
-pub struct PostgresConnectionManager {
-    pub connection_string: String
-}
-
-impl Manager for PostgresConnectionManager {
-    type Type = PgConnection;
-    type Error = Error;
-    
-    async fn create(&self) -> Result<PgConnection, Self::Error> {
-        PgConnection::connect(&self.connection_string).await
-    }
-    
-    async fn recycle(&self, conn: &mut PgConnection, _: &Metrics) -> RecycleResult<Self::Error> {
-        conn.ping()
-            .await
-            .map_err(|e| RecycleError::message(format!("Failed to ping postgres: {}", e)))
-    }
-}
 
 pub struct MongoConnectionManager {
     pub client: MongoClient,

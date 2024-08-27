@@ -1,9 +1,9 @@
-mod postgres;
 mod mongo;
 
 use serde::Deserialize;
 
-use super::{error::QueryError, mongo::MongoDatabase, postgres::PostgresDatabase};
+use super::mongo::MongoDatabase;
+use super::error::QueryError;
 
 pub struct NewThread<'a> {
     pub id: &'a str,
@@ -49,42 +49,36 @@ pub trait ThreadsRepository {
 
 #[allow(dead_code)]
 pub enum ThreadsRepositoryOption {
-    Postgres(PostgresDatabase),
     Mongo(MongoDatabase),
 }
 
 impl ThreadsRepository for ThreadsRepositoryOption {
     async fn create<'a>(&self, thread: NewThread<'a>) -> Result<(), QueryError> {
         match self {
-            Self::Postgres(pg) => pg.create(thread).await,
             Self::Mongo(mongo) => mongo.create(thread).await,
         }
     }
 
     async fn list(&self, project_id: &str) -> Result<Vec<Thread>, QueryError> {
         match self {
-            Self::Postgres(pg) => pg.list(project_id).await,
             Self::Mongo(mongo) => mongo.list(project_id).await,
         }
     }
 
     async fn get_by_id(&self, id: &str) -> Result<Option<Thread>, QueryError> {
         match self {
-            Self::Postgres(pg) => pg.get_by_id(id).await,
             Self::Mongo(mongo) => mongo.get_by_id(id).await,
         }
     }
 
     async fn create_comment<'a>(&self, comment: NewComment<'a>) -> Result<(), QueryError> {
         match self {
-            Self::Postgres(pg) => pg.create_comment(comment).await,
             Self::Mongo(mongo) => mongo.create_comment(comment).await,
         }
     }
 
     async fn list_comments(&self, thread_id: &str) -> Result<Vec<Comment>, QueryError> {
         match self {
-            Self::Postgres(pg) => pg.list_comments(thread_id).await,
             Self::Mongo(mongo) => mongo.list_comments(thread_id).await,
         }
     }

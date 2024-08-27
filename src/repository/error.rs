@@ -2,15 +2,12 @@ use std::{error::Error, fmt::Display};
 use deadpool::managed::PoolError;
 use prost::DecodeError;
 use redis::RedisError;
-use sqlx::Error as SqlxError;
 use mongodb::error::Error as MongoError;
 use mongodb::bson::ser::Error as MongoSerializeError;
 use mongodb::bson::de::Error as MongoDeserializeError;
 
 #[derive(Debug)]
 pub enum QueryError {
-    Sqlx(SqlxError),
-    PostgresPool(PoolError<SqlxError>),
     MongoPool(PoolError<MongoError>),
     RedisPool(PoolError<RedisError>),
     ProtobufDecode(DecodeError),
@@ -25,8 +22,6 @@ impl Error for QueryError { }
 impl Display for QueryError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            QueryError::Sqlx(e) => write!(f, "Error running query: {}", e),
-            QueryError::PostgresPool(e) => write!(f, "Error obtaining connection from pool: {}", e),
             QueryError::MongoPool(e) => write!(f, "Error obtaining connection from mongo pool: {}", e),
             QueryError::RedisPool(e) => write!(f, "Error obtaining connection from redis pool: {}", e),
             QueryError::ProtobufDecode(e) => write!(f, "Error decoding protobuf: {}", e),
@@ -38,21 +33,9 @@ impl Display for QueryError {
     }
 }
 
-impl From<PoolError<SqlxError>> for QueryError {
-    fn from(value: PoolError<SqlxError>) -> Self {
-        QueryError::PostgresPool(value)
-    }
-}
-
 impl From<PoolError<RedisError>> for QueryError {
     fn from(value: PoolError<RedisError>) -> Self {
         QueryError::RedisPool(value)
-    }
-}
-
-impl From<SqlxError> for QueryError {
-    fn from(value: SqlxError) -> Self {
-        QueryError::Sqlx(value)
     }
 }
 
