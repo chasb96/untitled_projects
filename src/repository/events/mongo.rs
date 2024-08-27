@@ -69,6 +69,8 @@ impl EventsRepository for MongoDatabase {
             events.push(model.event);
         }
 
+        events.reverse();
+
         Ok(events)
     }
 }
