@@ -36,6 +36,7 @@ impl EventsRepository for MongoDatabase {
 
         #[derive(Deserialize)]
         struct Model {
+            #[serde(rename = "c")]
             event: EventKind,
         }
 

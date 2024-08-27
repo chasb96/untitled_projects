@@ -14,6 +14,7 @@ impl ThreadsRepository for MongoDatabase {
 
         #[derive(Deserialize)]
         struct Order {
+            #[serde(rename = "o")]
             order: u32,
         }
 
@@ -73,6 +74,7 @@ impl ThreadsRepository for MongoDatabase {
 
         #[derive(Deserialize)]
         struct Order {
+            #[serde(rename = "o")]
             order: u32,
         }
 

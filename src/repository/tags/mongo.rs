@@ -10,6 +10,7 @@ impl TagsRepository for MongoDatabase {
     async fn list(&self, project_id: &str) -> Result<Vec<String>, QueryError> {
         #[derive(Deserialize)]
         struct Model {
+            #[serde(rename = "t")]
             tag: String,
         }
 

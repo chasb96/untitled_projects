@@ -10,6 +10,7 @@ impl SourceRequestRepository for MongoDatabase {
     async fn get_by_id<'a>(&self, id: &'a str) -> Result<Option<SourceRequest>, QueryError> {
         #[derive(Deserialize)]
         struct Model {
+            #[serde(rename = "sr")]
             source_request: SourceRequest,
         }
 
@@ -27,6 +28,7 @@ impl SourceRequestRepository for MongoDatabase {
     async fn get_approvable<'a>(&self, id: &'a str) -> Result<Option<Approvable>, QueryError> {
         #[derive(Deserialize)]
         struct Model {
+            #[serde(rename = "sr")]
             approvable: Approvable,
         }
 
@@ -44,6 +46,7 @@ impl SourceRequestRepository for MongoDatabase {
     async fn get_completable<'a>(&self, id: &'a str) -> Result<Option<Completable>, QueryError> {
         #[derive(Deserialize)]
         struct Model {
+            #[serde(rename = "sr")]
             completable: Completable,
         }
 
@@ -94,7 +97,9 @@ impl SourceRequestRepository for MongoDatabase {
     async fn list_by_project_id(&self, project_id: &str) -> Result<Vec<(String, SourceRequestSummary)>, QueryError> {
         #[derive(Deserialize)]
         struct Model {
+            #[serde(rename = "i")]
             id: String,
+            #[serde(rename = "sr")]
             source_request: SourceRequestSummary,
         }
 

@@ -29,9 +29,13 @@ impl SourceRequestCommentRepository for MongoDatabase {
     async fn list<'a>(&self, source_request_id: &'a str) -> Result<Vec<SourceRequestComment>, QueryError> {
         #[derive(Deserialize)]
         struct Model {
+            #[serde(rename = "i")]
             id: String,
+            #[serde(rename = "sr")]
             source_request_id: String,
+            #[serde(rename = "u")]
             user_id: String,
+            #[serde(rename = "c")]
             content: String,
         }
 

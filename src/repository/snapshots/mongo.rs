@@ -14,6 +14,7 @@ impl SnapshotsRepository for MongoDatabase {
 
         #[derive(Deserialize)]
         struct Model {
+            #[serde(rename = "s")]
             snapshot: Snapshot,
         }
 
@@ -58,6 +59,7 @@ impl SnapshotsRepository for MongoDatabase {
 
         #[derive(Deserialize)]
         struct Model {
+            #[serde(rename = "s")]
             snapshot: Snapshot,
         }
 
