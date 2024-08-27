@@ -1,4 +1,5 @@
 use futures::TryStreamExt;
+use mongodb::bson::Document;
 use mongodb::bson::{self, doc};
 use serde::Deserialize;
 
@@ -29,7 +30,7 @@ impl EventsRepository for MongoDatabase {
             .map_err(QueryError::from)
     }
 
-    async fn list(&self, project_id: &str) -> Result<Vec<EventKind>, QueryError> {
+    async fn list(&self, project_id: &str, event_id: &str) -> Result<Vec<EventKind>, QueryError> {
         let conn = self.connection_pool
             .get()
             .await?;
@@ -40,32 +41,33 @@ impl EventsRepository for MongoDatabase {
             event: EventKind,
         }
 
-        conn.collection::<Model>("events")
-            .find(doc! { "p": project_id, })
-            .projection(doc! { "c": 1, })
-            .await?
-            .try_collect()
-            .await
-            .map(|models: Vec<Model>| models
-                .into_iter()
-                .map(|model| model.event)
-                .collect()
-            )
-            .map_err(QueryError::from)
-    }
+        let mut cursor = conn.collection::<Document>("events")
+            .aggregate([
+                doc! { "$match": {  "p": project_id,  "e": event_id } },
+                doc! { 
+                    "$graphLookup": {
+                        "from": "events",
+                        "startWith": "$pe",
+                        "connectFromField": "pe",
+                        "connectToField": "e",
+                        "as": "history",
+                        "restrictSearchWithMatch": { "p": project_id },
+                        "maxDepth": 32,
+                    }
+                },
+                doc! { "$unwind": "$history" },
+                doc! { "$replaceRoot": { "newRoot": "$history" } },
+                doc! { "$project": { "c": 1 } },
+            ])
+            .await?;
 
-    async fn list_until(&self, project_id: &str, event_id: &str) -> Result<Vec<EventKind>, QueryError> {
-        let mut found = false;
+        let mut events = Vec::new();
 
-        let events = self
-            .list(project_id)
-            .await?
-            .into_iter()
-            .take_while(|event| match found {
-                true => false,
-                false => { found = event.event_id() == event_id; true }
-            })
-            .collect();
+        while let Some(document) = cursor.try_next().await? {
+            let model: Model = bson::from_document(document)?;
+
+            events.push(model.event);
+        }
 
         Ok(events)
     }

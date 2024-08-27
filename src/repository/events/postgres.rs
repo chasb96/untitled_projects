@@ -1,5 +1,6 @@
 use futures::TryStreamExt;
-use sqlx::{postgres::PgRow, types::Json};
+use sqlx::types::Json;
+use sqlx::postgres::PgRow;
 use sqlx::Row;
 
 use crate::{events::{ Event, EventKind }, repository::{error::QueryError, postgres::PostgresDatabase}};
@@ -30,34 +31,7 @@ impl EventsRepository for PostgresDatabase {
         Ok(())
     }
 
-    async fn list(&self, project_id: &str) -> Result<Vec<EventKind>, QueryError> {
-        const LIST_QUERY: &'static str = r#"
-            SELECT content
-            FROM project_events
-            WHERE project_id = $1
-            ORDER BY id ASC
-        "#;
-
-        let mut conn = self.connection_pool
-            .get()
-            .await.unwrap();
-
-        let mut event_stream = sqlx::query(LIST_QUERY)
-            .bind(project_id)
-            .map(|row: PgRow| row.get("content"))
-            .map(|content: Json<EventKind>| content.0)
-            .fetch(conn.as_mut());
-
-        let mut events = Vec::new();
-
-        while let Some(event) = event_stream.try_next().await? {
-            events.push(event);
-        }
-
-        Ok(events)
-    }
-
-    async fn list_until(&self, project_id: &str, event_id: &str) -> Result<Vec<EventKind>, QueryError> {
+    async fn list(&self, project_id: &str, event_id: &str) -> Result<Vec<EventKind>, QueryError> {
         const LIST_QUERY: &'static str = r#"
             SELECT content
             FROM project_events
