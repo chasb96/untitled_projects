@@ -1,1 +1,0 @@
-DROP TABLE project_source_requests;
