@@ -8,7 +8,7 @@ use super::error::QueryError;
 pub trait EventsRepository {
     async fn create(&self, project_id: &str, event: impl Into<EventKind>) -> Result<(), QueryError>;
 
-    async fn list(&self, project_id: &str, event_id: &str) -> Result<Vec<EventKind>, QueryError>;
+    async fn list(&self, project_id: &str, event_id: &str) -> Result<Option<Vec<EventKind>>, QueryError>;
 }
 
 #[allow(dead_code)]
@@ -23,7 +23,7 @@ impl EventsRepository for EventsRepositoryOption {
         }
     }
 
-    async fn list(&self, project_id: &str, event_id: &str) -> Result<Vec<EventKind>, QueryError> {
+    async fn list(&self, project_id: &str, event_id: &str) -> Result<Option<Vec<EventKind>>, QueryError> {
         match self {
             Self::Mongo(mongo) => mongo.list(project_id, event_id).await,
         }

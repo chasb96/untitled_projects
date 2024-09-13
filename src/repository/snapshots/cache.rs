@@ -20,6 +20,12 @@ where
             .await
     }
 
+    async fn list_versions(&self, project_id: &str) -> Result<Vec<super::Version>, QueryError> {
+        self.repository
+            .list_versions(project_id)
+            .await
+    }
+
     async fn create(&self, project_id: &str, version: &str, snapshot: impl Into<Snapshot>) -> Result<(), QueryError> {
         self.repository
             .create(project_id, version, snapshot)

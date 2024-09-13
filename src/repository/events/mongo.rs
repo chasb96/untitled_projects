@@ -30,7 +30,7 @@ impl EventsRepository for MongoDatabase {
             .map_err(QueryError::from)
     }
 
-    async fn list(&self, project_id: &str, event_id: &str) -> Result<Vec<EventKind>, QueryError> {
+    async fn list(&self, project_id: &str, event_id: &str) -> Result<Option<Vec<EventKind>>, QueryError> {
         let conn = self.connection_pool
             .get()
             .await?;
@@ -69,8 +69,12 @@ impl EventsRepository for MongoDatabase {
             events.push(model.event);
         }
 
-        events.reverse();
+        if events.len() == 0 {
+            Ok(None)
+        } else {
+            events.reverse();
 
-        Ok(events)
+            Ok(Some(events))
+        }
     }
 }

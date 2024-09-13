@@ -8,6 +8,9 @@ mod list_tags;
 mod remove_tag;
 mod threads;
 mod source_requests;
+mod create_version;
+mod list_versions;
+mod get_version_by_id;
 
 pub use list_projects::list_projects;
 pub use create_project::create_project;
@@ -16,6 +19,9 @@ pub use event::event;
 pub use create_tag::create_tag;
 pub use list_tags::list_tags;
 pub use remove_tag::remove_tag;
+pub use create_version::create_version;
+pub use list_versions::list_versions;
+pub use get_version_by_id::get_version_by_id;
 
 pub use threads::create_thread;
 pub use threads::get_thread_by_id;

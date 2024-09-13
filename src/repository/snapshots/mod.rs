@@ -13,8 +13,15 @@ pub enum ListQuery {
     UserId { user_id: String },
 }
 
+pub struct Version {
+    pub version: String,
+    pub event_id: String,
+}
+
 pub trait SnapshotsRepository {
     async fn list(&self, query: &ListQuery) -> Result<Vec<Snapshot>, QueryError>;
+
+    async fn list_versions(&self, project_id: &str) -> Result<Vec<Version>, QueryError>;
 
     async fn create(&self, project_id: &str, version: &str, snapshot: impl Into<Snapshot>) -> Result<(), QueryError>;
 
@@ -35,6 +42,13 @@ impl SnapshotsRepository for SnapshotsRepositoryOption {
             Self::Mongo(mongo) => mongo.list(project_ids).await,
             Self::CachedMongo(cached_mongo) => cached_mongo.list(project_ids).await,
         }
+    }
+
+    async fn list_versions(&self, project_id: &str) -> Result<Vec<Version>, QueryError> {
+        match self {
+            Self::Mongo(mongo) => mongo.list_versions(project_id).await,
+            Self::CachedMongo(cached_mongo) => cached_mongo.list_versions(project_id).await,
+        }    
     }
 
     async fn create(&self, project_id: &str, version: &str, snapshot: impl Into<Snapshot>) -> Result<(), QueryError> {

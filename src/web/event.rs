@@ -1,8 +1,15 @@
-use axum::{extract::Path, response::IntoResponse, Json};
+use axum::Json;
+use axum::response::IntoResponse;
+use axum::extract::Path;
 use axum::http::StatusCode;
-use or_status_code::{OrInternalServerError, OrNotFound};
+use or_status_code::OrNotFound;
+use or_status_code::OrInternalServerError;
 
-use crate::{axum::extractors::{events_repository::EventsRepositoryExtractor, message_queue::MessageQueueExtractor, snapshots_repository::SnapshotsRepositoryExtractor}, events::EventKind, message_queue::CreateSnapshot};
+use crate::message_queue::CreateSnapshot;
+use crate::events::EventKind;
+use crate::axum::extractors::snapshots_repository::SnapshotsRepositoryExtractor;
+use crate::axum::extractors::message_queue::MessageQueueExtractor;
+use crate::axum::extractors::events_repository::EventsRepositoryExtractor;
 use crate::repository::snapshots::SnapshotsRepository;
 use crate::repository::events::EventsRepository;
 
@@ -32,7 +39,7 @@ pub async fn event(
 
     message_queue
         .send(CreateSnapshot {
-            project_id: project.id.clone(),
+            project_id: project_id,
             version: "latest".to_string(),
             snapshot: project,
         })

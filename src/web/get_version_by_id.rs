@@ -1,23 +1,22 @@
-use auth_client::axum::extractors::ClaimsUser;
 use auth_client::axum::extractors::Authenticate;
+use auth_client::axum::extractors::ClaimsUser;
 use axum::extract::Path;
-use axum::response::IntoResponse;
 use axum::http::StatusCode;
+use axum::response::IntoResponse;
 use axum_extra::protobuf::Protobuf;
-use or_status_code::OrStatusCode;
 use or_status_code::OrInternalServerError;
+use or_status_code::OrStatusCode;
+use prost::Message;
 
-use crate::message_queue::ProjectViewed;
-use crate::axum::extractors::snapshots_repository::SnapshotsRepositoryExtractor;
 use crate::axum::extractors::message_queue::MessageQueueExtractor;
+use crate::axum::extractors::snapshots_repository::SnapshotsRepositoryExtractor;
+use crate::message_queue::ProjectViewed;
 use crate::repository::snapshots::SnapshotsRepository;
 
 use super::ApiResult;
 
-use prost::Message;
-
 #[derive(Message)]
-pub struct ProjectResponse {
+pub struct VersionResponse {
     #[prost(string, tag = "1")]
     pub id: String,
     #[prost(string, tag = "2")]
@@ -27,25 +26,25 @@ pub struct ProjectResponse {
     #[prost(string, tag = "4")]
     pub event_id: String,
     #[prost(message, repeated, tag = "5")]
-    pub files: Vec<ProjectFileReponse>,
+    pub files: Vec<VersionFileReponse>,
 }
 
 #[derive(Message)]
-pub struct ProjectFileReponse {
+pub struct VersionFileReponse {
     #[prost(string, tag = "1")]
     pub id: String,
     #[prost(string, tag = "2")]
     pub name: String,
 }
 
-pub async fn get_project_by_id(
+pub async fn get_version_by_id(
     Authenticate(user): Authenticate<Option<ClaimsUser>>,
     message_queue: MessageQueueExtractor,
     snapshots_repository: SnapshotsRepositoryExtractor,
-    Path(id): Path<String>,
+    Path((project_id, version)): Path<(String, String)>
 ) -> ApiResult<impl IntoResponse> {
     let project = snapshots_repository
-        .get_by_id(&id, "latest")
+        .get_by_id(&project_id, &version)
         .await
         .or_internal_server_error()?
         .or_status_code(StatusCode::NOT_FOUND)?;
@@ -58,14 +57,14 @@ pub async fn get_project_by_id(
             .await;
     }
 
-    let response_body = ProjectResponse {
+    let response_body = VersionResponse {
         id: project.id,
         name: project.name,
         user_id: project.user_id,
         event_id: project.event_id,
         files: project.files
             .into_iter()
-            .map(|file| ProjectFileReponse {
+            .map(|file| VersionFileReponse {
                 id: file.1,
                 name: file.0,
             })
