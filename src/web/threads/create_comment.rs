@@ -13,7 +13,7 @@ use crate::axum::extractors::threads_repository::ThreadsRepositoryExtractor;
 use crate::repository::threads::ThreadsRepository;
 
 #[derive(Message)]
-pub struct CreateProjectRequest {
+pub struct CreateCommentRequest {
     #[prost(string, tag = "1")]
     pub content: String,
 }
@@ -28,7 +28,7 @@ pub async fn create_comment(
     Authenticate(user): Authenticate<ClaimsUser>,
     threads_repository: ThreadsRepositoryExtractor,
     Path((project_id, thread_id)): Path<(String, String)>,
-    Protobuf(request): Protobuf<CreateProjectRequest>,
+    Protobuf(request): Protobuf<CreateCommentRequest>,
 ) ->ApiResult<impl IntoResponse> {
     let thread = threads_repository
         .get_by_id(&thread_id)
