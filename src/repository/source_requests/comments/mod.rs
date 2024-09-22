@@ -5,7 +5,6 @@ use crate::repository::error::QueryError;
 
 pub struct SourceRequestComment {
     pub id: String,
-    pub source_request_id: String,
     pub user_id: String,
     pub content: String,
 }

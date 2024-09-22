@@ -30,7 +30,6 @@ pub struct NewComment<'a> {
 #[derive(Deserialize)]
 pub struct Comment {
     pub id: String,
-    pub thread_id: String,
     pub user_id: String,
     pub content: String,
 }

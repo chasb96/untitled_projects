@@ -31,8 +31,6 @@ impl SourceRequestCommentRepository for MongoDatabase {
         struct Model {
             #[serde(rename = "i")]
             id: String,
-            #[serde(rename = "sr")]
-            source_request_id: String,
             #[serde(rename = "u")]
             user_id: String,
             #[serde(rename = "c")]
@@ -56,7 +54,6 @@ impl SourceRequestCommentRepository for MongoDatabase {
         while let Some(model) = cursor.try_next().await? {
             source_request_comments.push(SourceRequestComment {
                 id: model.id,
-                source_request_id: model.source_request_id,
                 user_id: model.user_id,
                 content: model.content,
             });
