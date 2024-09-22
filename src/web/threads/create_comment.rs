@@ -19,7 +19,7 @@ pub struct CreateCommentRequest {
 }
 
 #[derive(Message)]
-pub struct CommentResponse {
+pub struct CreateCommentResponse {
     #[prost(string, tag = "1")]
     pub id: String,
 }
@@ -53,7 +53,7 @@ pub async fn create_comment(
         .await
         .or_internal_server_error()?;
 
-    Ok(Protobuf(CommentResponse {
+    Ok(Protobuf(CreateCommentResponse {
         id: comment_id
     }))
 }
